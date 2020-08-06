@@ -1,17 +1,22 @@
 import numpy as np
+import itertools
+import random
 
 
 class GA:
-    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, n_genes=2, crossover_probability=0.6, p_mutation=0.1):
+    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, n_genes=2, crossover_probability=0.6, mutation_probability=0.05, num_bits=20):
         self.population_size = pop_size
         self.num_genes = n_genes
         self.crossover_probability = crossover_probability
-        self.p_mutation = p_mutation
+        self.mutation_probability = mutation_probability
         self.lb = lb
         self.ub = ub
         self.num_generations = num_generations
         self.fitness_func = fitness_func
+        self.num_bits = num_bits  # number of bits to encode each gene
 
+        self.precision = (np.array(self.ub) - np.array(self.lb)
+                          )/(np.exp2(self.num_bits) - 1)
         self.best_solutions_fitness = []
 
     def initialize_population(self):
@@ -25,7 +30,7 @@ class GA:
 
     def cal_pop_fitness(self):
         """
-        Calculating the fitness values of all solutions in the current population. 
+        Calculating the fitness values of all solutions in the current population.
         It returns:
             -fitness: An array of the calculated fitness values.
         """
@@ -50,12 +55,16 @@ class GA:
             self.best_solutions_fitness.append(np.max(fitness))
 
             # Selecting the best parents in the population for mating.
-            parents = self.random_selection(fitness, 5)
+            parents = self.encode(self.random_selection(
+                fitness, self.population_size))
 
             # Crossover
             offspring_crossover = self.single_point_crossover(
-                parents, self.pop_size)
-            print(parents)
+                parents, self.population_size)
+            # Mutation
+            offspring_mutated = self.flip_bit_mutation(offspring_crossover)
+            # Update population
+            self.population = self.decode(offspring_mutated)
 
     def random_selection(self, fitness, num_parents):
         """
@@ -83,47 +92,85 @@ class GA:
         It returns an array the produced offspring.
         """
 
-        offspring = np.empty(offspring_size)
+        offspring = []
+        parents_pairs = list(itertools.combinations(parents, 2))
+        random.shuffle(parents_pairs)
 
-        for k in range(offspring_size[0]):
-            # The point at which crossover takes place between two parents. Usually, it is at the center.
-            crossover_point = np.random.randint(
-                low=0, high=parents.shape[1], size=1)[0]
+        for pair in parents_pairs[:int(offspring_size/2)]:
+            offspring1 = ''
+            offspring2 = ''
+            for gene in range(self.num_genes):
+                parent1 = pair[0][gene*self.num_bits:(gene+1)*self.num_bits]
+                parent2 = pair[1][gene*self.num_bits:(gene+1)*self.num_bits]
 
-            if self.crossover_probability != None:
-                probs = np.random.random(size=parents.shape[1])
-                indices = np.where(probs <= self.crossover_probability)[0]
+                # Crossover probability
+                prob = np.random.random()
 
-                # If no parent satisfied the probability, no crossover is applied and a parent is selected.
-                if len(indices) == 0:
-                    offspring[k, :] = parents[k % parents.shape[0], :]
-                    continue
-                elif len(indices) == 1:
-                    parent1_idx = indices[0]
-                    parent2_idx = parent1_idx
+                # Apply crossover between parents only if the probability is
+                if(prob < self.crossover_probability):
+                    crossover_point = np.random.randint(
+                        low=0, high=self.num_bits)
+                    child1 = parent1[:crossover_point] + \
+                        parent2[crossover_point:]
+                    child2 = parent2[:crossover_point] + \
+                        parent1[crossover_point:]
+
+                    offspring1 = offspring1 + child1
+                    offspring2 = offspring2 + child2
                 else:
-                    indices = np.random.sample(set(indices), 2)
-                    parent1_idx = indices[0]
-                    parent2_idx = indices[1]
-            else:
-                # Index of the first parent to mate.
-                parent1_idx = k % parents.shape[0]
-                # Index of the second parent to mate.
-                parent2_idx = (k+1) % parents.shape[0]
+                    offspring1 = offspring1 + parent1
+                    offspring2 = offspring2 + parent2
 
-            # The new offspring has its first half of its genes from the first parent.
-            offspring[k, 0:crossover_point] = parents[parent1_idx,
-                                                      0:crossover_point]
-            # The new offspring has its second half of its genes from the second parent.
-            offspring[k, crossover_point:] = parents[parent2_idx,
-                                                     crossover_point:]
-        return offspring
+            offspring.append(offspring1)
+            offspring.append(offspring2)
+
+        return np.array(offspring).flatten()
+
+    def flip_bit_mutation(self, offsprings):
+        for offspring in offsprings:
+            for gene in range(self.num_genes):
+                variable = offspring[gene *
+                                     self.num_bits:(gene+1)*self.num_bits]
+                for chromossome in variable:
+                    # mutation probability
+                    prob = np.random.random()
+                    if prob < self.mutation_probability:
+                        chromossome = str((not bool(chromossome))*1)
+
+        return offsprings
 
     def encode(self, x):
-        return self.real_to_binary(x)
+        nx = x.shape[0]
+        encoded = []
+        encoded_genes = []
+
+        for gene in range(self.num_genes):
+            dx = self.precision[gene]
+            li = np.repeat(self.lb[gene], nx)
+            xint = ((x[:, gene] - li)/dx).astype('int')
+            encoded.append(self.int_to_binary_array(xint))
+
+        encoded_matrix = np.transpose(np.array(encoded))
+        for i in range(nx):
+            value = ''
+            for k in range(self.num_genes):
+                value = value + str(encoded_matrix[i][k])
+
+            encoded_genes.append(value)
+
+        return np.array(encoded_genes)
+
+    def int_to_binary_array(self, x):
+        return np.array([np.binary_repr(value, self.num_bits) for value in x]).flatten()
 
     def decode(self, x):
-        return x
+        nx = len(x)
+        decoded = np.zeros((nx, self.num_genes))
+        for i in range(nx):
+            for gene in range(self.num_genes):
+                dx = self.precision[gene]
+                k_str = x[i][gene*self.num_bits:(gene+1)*self.num_bits]
+                k_int = int(k_str, 2)
+                decoded[i, gene] = k_int * dx + self.lb[gene]
 
-    def real_to_binary(self, x):
-        return x
+        return decoded
