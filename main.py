@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from src.models.rosenbrock import Rosenbrock
+from src.models.rastringin import Rastringin
 from src.optimization.ga import GA
 
 
@@ -9,16 +10,27 @@ def run_queens():
     """
 
 
+def run_rastrigin():
+    """
+    Executa o algoritmo GA para a função de rosenbrock
+    """
+    m = Rastringin()
+    ga_instance = GA([-5.12]*10, [5.12]*10, m.f,
+                     num_generations=100, mutation_probability=0.1, num_genes=10)
+    ga_instance.run()
+    print(ga_instance)
+
+
 def run_rosenbrock():
     """
     Executa o algoritmo GA para a função de rosenbrock
     """
     m = Rosenbrock()
     ga_instance = GA([-5, -5], [10, 10], m.f,
-                     num_generations=100, mutation_probability=1)
+                     num_generations=100, mutation_probability=0.1)
     ga_instance.run()
     print(ga_instance)
 
 
 if __name__ == "__main__":
-    run_rosenbrock()
+    run_rastrigin()
