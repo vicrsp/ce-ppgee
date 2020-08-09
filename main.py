@@ -6,6 +6,9 @@ from src.models.test_functions import Quadratic
 from src.optimization.ga import GA
 
 
+def plot_execution_summary(ga_results):
+
+
 def run_queens():
     """Executa o algoritmo GA para a função das N rainhas
     """
@@ -30,11 +33,8 @@ def run_rastrigin():
     """
     m = Rastrigin()
     ga_instance = GA([-5.12]*10, [5.12]*10, m.f,
-                     num_generations=200, mutation_probability=0.1, pop_size=20)
+                     num_generations=100, mutation_probability=0.1, pop_size=20, crossover_probability=0.7)
     ga_instance.run()
-
-    plt.plot(1 / np.array(ga_instance.best_solutions_fitness))
-    plt.show()
 
 
 def run_rosenbrock():
@@ -43,14 +43,12 @@ def run_rosenbrock():
     """
     m = Rosenbrock()
     ga_instance = GA([-5, -5], [10, 10], m.f,
-                     num_generations=100, mutation_probability=0.1, crossover_probability=0.7)
+                     num_generations=50, mutation_probability=0.1, crossover_probability=0.7)
     ga_instance.run()
 
     plt.plot(1 / np.array(ga_instance.best_solutions_fitness))
     plt.show()
 
-    print(ga_instance.best_solutions)
-
 
 if __name__ == "__main__":
-    run_quadratic()
+    run_rosenbrock()

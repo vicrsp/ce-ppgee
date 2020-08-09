@@ -18,22 +18,27 @@ class GAChromossome:
 
 
 class GA:
-    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, crossover_probability=0.6, mutation_probability=0.05, num_bits=20, selection_probability=0.5):
+    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, crossover_probability=0.6, mutation_probability=0.05, num_bits=20, tournament_candidates=10):
         self.population_size = pop_size
         self.num_variables = len(lb)
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
-        self.selection_probability = selection_probability
         self.lb = lb
         self.ub = ub
         self.num_generations = num_generations
         self.fitness_func = fitness_func
         self.num_bits = num_bits  # number of bits to encode each gene
+        self.tournament_candidates = tournament_candidates
 
         self.precision = (np.array(self.ub) - np.array(self.lb)
                           )/(np.exp2(self.num_bits) - 1)
         self.best_solutions_fitness = []
-        self.best_solutions = {}
+        self.generation_fitness = []
+        self.generation_solutions = {}
+        self.generation_parents = {}
+        self.generation_offspring_mutated = {}
+        self.generation_offspring_crossover = {}
+
         self.fitness_eval = 0
 
     def initialize_population(self):
@@ -70,13 +75,15 @@ class GA:
         for generation in range(self.num_generations):
             # Measuring the fitness of each chromosome in the population.
             fitness = self.cal_pop_fitness(self.population)
-            self.best_solutions[generation] = self.population
-            # Appending the fitness value of the best solution in the current generation
-            self.best_solutions_fitness.append(np.max(fitness))
 
             # Selecting the best parents in the population for mating.
-            parents = self.encode(self.random_selection(
-                fitness, self.population_size))
+            prob = np.random.rand()
+            if prob < 0.5:
+                parents = self.encode(self.roulette_selection(
+                    fitness, self.population_size))
+            else:
+                parents = self.encode(self.tournament_selection(
+                    fitness, self.population_size, self.tournament_candidates, with_replacement=True))
 
             # Crossover
             offspring_crossover = self.single_point_crossover(parents)
@@ -88,10 +95,25 @@ class GA:
             # offspring_survived = self.survivor_selection(
             #     offspring_mutated, self.population_size)
 
+            # Store GA progress data
+            self.generation_parents[generation] = parents
+            self.generation_solutions[generation] = self.population
+            self.generation_fitness.append(fitness)
+            self.best_solutions_fitness.append(np.max(fitness))
+            self.generation_offspring_mutated[generation] = offspring_mutated
+            self.generation_offspring_crossover[generation] = offspring_crossover
+
+            # Log generation results:
+            print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
+                generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
+            print('Generation #{}: Best solution: {}'.format(
+                generation, self.population[np.argmax(fitness)]))
+            print('Generation #{}: Worst solution: {}'.format(
+                generation, self.population[np.argmin(fitness)]))
+            print(
+                '===========================================================================================')
             # Update population
             self.population = self.decode(offspring_mutated)
-
-            # print('Finished generation {}...'.format(generation))
 
         print('Finishing GA...')
 
@@ -125,8 +147,9 @@ class GA:
             a[i] = probs[i] + np.sum(probs[:(i-1)]) if i > 0 else 0
 
         parents = np.empty((num_parents, self.num_variables))
+        rand_probs = np.random.rand(num_parents)
         for parent_num in range(num_parents):
-            rand_prob = np.random.rand()
+            rand_prob = rand_probs[parent_num]
             for idx in range(probs.shape[0]):
                 if a[idx] > rand_prob:
                     parents[parent_num, :] = self.population[idx, :]
@@ -134,10 +157,36 @@ class GA:
 
         return parents
 
-    def tournament_selection(self, fitness, num_parents):
+    def tournament_selection(self, fitness, num_parents, num_candidates, with_replacement=True):
         """
-        Selects the parents with roulette selection
+        Selects the parents with tournament selection
         """
+        parents = np.empty((num_parents, self.num_variables))
+        winner_indexes = []
+        nx = fitness.shape[0]
+
+        for parent_num in range(num_parents):
+            tournament_fitness = []
+            tournament_indices = []
+
+            if with_replacement:
+                tournament_indices = np.random.randint(
+                    low=0.0, high=nx, size=num_candidates)
+                tournament_fitness = fitness[tournament_indices]
+            else:
+                rand_indices = np.random.randint(
+                    low=0.0, high=(nx - parent_num), size=num_candidates)
+                indexes_remaining = np.where(range(nx) not in winner_indexes)
+
+                tournament_fitness = fitness[indexes_remaining]
+                tournament_indices = indexes_remaining[rand_indices]
+
+            winner_index = tournament_indices[np.argsort(
+                tournament_fitness)[-1]]
+            winner_indexes.append(winner_index)
+            parents[parent_num, :] = self.population[winner_index, :]
+
+        return parents
 
     def random_selection(self, fitness, num_parents):
         """

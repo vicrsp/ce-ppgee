@@ -6,4 +6,4 @@ class Rosenbrock:
         self.n = n
 
     def f(self, x, index):
-        return rosen(x)
+        return 1 / rosen(x)
