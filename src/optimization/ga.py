@@ -39,6 +39,8 @@ class GA:
         self.generation_offspring_mutated = {}
         self.generation_offspring_crossover = {}
 
+        self.x_tol = 10 ** -6
+        self.fitness_tol = 10 ** -6
         self.fitness_eval = 0
 
     def initialize_population(self):
@@ -67,7 +69,7 @@ class GA:
         self.fitness_eval = self.fitness_eval + pop_fitness.shape[0]
         return pop_fitness
 
-    def run(self):
+    def run(self, debug=False):
         print('Starting GA...')
         self.initialize_population()
 
@@ -102,15 +104,50 @@ class GA:
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
 
-            # Log generation results:
-            print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
-                generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
-            print('Generation #{}: Best solution: {}'.format(
-                generation, self.population[np.argmax(fitness)]))
-            print('Generation #{}: Worst solution: {}'.format(
-                generation, self.population[np.argmin(fitness)]))
-            print(
-                '===========================================================================================')
+            if(debug):
+                # Log generation results:
+                print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
+                    generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
+                print('Generation #{}: Best solution: {}'.format(
+                    generation, self.population[np.argmax(fitness)]))
+                print('Generation #{}: Worst solution: {}'.format(
+                    generation, self.population[np.argmin(fitness)]))
+                print(
+                    '===========================================================================================')
+
+            if(generation > 0):
+                generation_best = self.population[np.argmax(fitness)]
+                previous_best = self.generation_solutions[generation - 1][np.argmax(
+                    self.best_solutions_fitness[generation-1]), :]
+
+                diff_best = np.linalg.norm(generation_best-previous_best)
+
+                if diff_best < self.x_tol:
+                    print('Terminating due to x_tol convergence...')
+                    break
+
+            if(generation > 0):
+                generation_best = np.max(fitness)
+                previous_best = self.best_solutions_fitness[generation - 1]
+
+                diff = np.abs(generation_best -
+                              previous_best)/generation_best
+                if diff < self.fitness_tol:
+                    print('Terminating due to BEST fitness_tol convergence...')
+                    break
+
+            if(generation > 0):
+                generation_mean = np.mean(fitness)
+                previous_mean = np.mean(
+                    self.generation_fitness[generation - 1])
+
+                diff = np.abs(generation_mean -
+                              previous_mean)/previous_mean
+
+                if diff < self.fitness_tol:
+                    print('Terminating due to AVG fitness_tol convergence...')
+                    break
+
             # Update population
             self.population = self.decode(offspring_mutated)
 
@@ -283,6 +320,7 @@ class GA:
         return decoded
 
     def binary_to_gray(self, b):
+        # return b
         g = ''
         for index in range(len(b)):
             gray_value = b[index] if index == 0 else str(
@@ -291,6 +329,7 @@ class GA:
         return g
 
     def gray_to_binary(self, g):
+        # return g
         b = ''
         for index in range(len(g)):
             bin_value = g[index] if index == 0 else str(

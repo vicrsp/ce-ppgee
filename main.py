@@ -33,6 +33,20 @@ def plot_execution_summary(ga_results):
     ax.set_xlabel('Generation #')
     ax.set_ylabel('Fitness')
 
+    _, ax1 = plt.subplots(ga_results.num_variables, 1)
+
+    best_solutions = np.empty(
+        (ga_results.num_generations, ga_results.num_variables))
+    for generation in ga_results.generation_solutions.keys():
+        fitness = ga_results.generation_fitness[generation]
+        ibest = np.argmax(fitness)
+        sbest = ga_results.generation_solutions[generation][ibest, :]
+        best_solutions[generation, :] = sbest
+
+    for i in range(ga_results.num_variables):
+        ax1[i].plot(best_solutions[:, i])
+        ax1[i].set_ylabel('x_{}'.format(i))
+
     # plot the contour for dim=2
     if(ga_results.num_variables == 2):
         fig, ax = plt.subplots()
@@ -41,13 +55,6 @@ def plot_execution_summary(ga_results):
 
         cs = ax.contourf(x, y, z, cmap="RdBu_r", levels=15)
         fig.colorbar(cs, ax=ax)
-        best_solutions = np.empty((ga_results.num_generations, 2))
-        for generation in ga_results.generation_solutions.keys():
-            fitness = ga_results.generation_fitness[generation]
-            ibest = np.argmax(fitness)
-            sbest = ga_results.generation_solutions[generation][ibest, :]
-            best_solutions[generation, :] = sbest
-
         ax.plot(best_solutions[:, 0], best_solutions[:, 1], 'ko--', ms=5)
     plt.show()
 
@@ -75,10 +82,11 @@ def run_rastrigin(n=10):
     """
     m = Rastrigin(n)
     ga_instance = GA([-5.12]*n, [5.12]*n, m.f,
-                     num_generations=50, mutation_probability=0.1, pop_size=100, crossover_probability=0.9)
+                     num_generations=100, mutation_probability=0.01, pop_size=10, crossover_probability=0.8)
     ga_instance.run()
 
     plot_execution_summary(ga_instance)
+    print(ga_instance.fitness_eval)
 
 
 def run_rosenbrock():
@@ -87,7 +95,7 @@ def run_rosenbrock():
     """
     m = Rosenbrock()
     ga_instance = GA([-1]*2, [1]*2, m.f,
-                     num_generations=50, mutation_probability=0.1, crossover_probability=0.7, pop_size=10)
+                     num_generations=50, mutation_probability=0.01, crossover_probability=0.7, pop_size=10)
     ga_instance.run()
 
     plot_execution_summary(ga_instance)
