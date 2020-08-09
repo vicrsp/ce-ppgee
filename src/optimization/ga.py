@@ -65,7 +65,6 @@ class GA:
         pop_fitness = np.array(pop_fitness)
 
         self.fitness_eval = self.fitness_eval + pop_fitness.shape[0]
-        print('Avg fitness: {}'.format(np.mean(pop_fitness)))
         return pop_fitness
 
     def run(self):

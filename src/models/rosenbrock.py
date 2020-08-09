@@ -1,4 +1,5 @@
 from scipy.optimize import rosen
+from numpy import exp
 
 
 class Rosenbrock:
@@ -6,4 +7,5 @@ class Rosenbrock:
         self.n = n
 
     def f(self, x, index):
-        return 1 / rosen(x)
+        y = rosen(x)
+        return exp(-y)

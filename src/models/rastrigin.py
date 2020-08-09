@@ -8,4 +8,4 @@ class Rastrigin:
     def f(self, x, index):
         y = self.a * len(x) + sum(map(lambda i: i**2 -
                                       self.a * np.cos(2*np.pi*i), x))
-        return 1000 / y
+        return np.exp(-y)

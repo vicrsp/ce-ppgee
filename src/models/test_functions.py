@@ -31,5 +31,5 @@ class Quadratic:
         self.dim = dim
 
     def f(self, x, index):
-        y = x[0]**2 + x[1]**2 + 1
-        return 1 / y
+        y = x[0]**2 + x[1]**2
+        return np.exp(-y)
