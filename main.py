@@ -26,20 +26,21 @@ def plot_execution_summary(ga_results):
     mean_fitness = [log(1 / np.mean(v)) for v in ga_results.generation_fitness]
     best_fitness = [log(1 / np.max(v)) for v in ga_results.generation_fitness]
 
-    fig, ax = plt.subplots(2, 1)
-    ax[0].plot(mean_fitness, 'b.')
-    ax[0].plot(best_fitness, 'k.')
-    ax[0].legend(['Mean fitness', 'Best fitness'])
-    ax[0].set_xlabel('Generation #')
-    ax[0].set_ylabel('Fitness')
+    fig, ax = plt.subplots()
+    ax.plot(mean_fitness, 'b.')
+    ax.plot(best_fitness, 'k.')
+    ax.legend(['Mean fitness', 'Best fitness'])
+    ax.set_xlabel('Generation #')
+    ax.set_ylabel('Fitness')
 
     # plot the contour for dim=2
     if(ga_results.num_variables == 2):
+        fig, ax = plt.subplots()
         x, y, z = data_for_contour_plot(ga_results.lb, ga_results.ub,
                                         ga_results.fitness_func)
 
-        cs = ax[1].contourf(x, y, z, cmap="RdBu_r", levels=15)
-        fig.colorbar(cs, ax=ax[1])
+        cs = ax.contourf(x, y, z, cmap="RdBu_r", levels=15)
+        fig.colorbar(cs, ax=ax)
         best_solutions = np.empty((ga_results.num_generations, 2))
         for generation in ga_results.generation_solutions.keys():
             fitness = ga_results.generation_fitness[generation]
@@ -47,7 +48,7 @@ def plot_execution_summary(ga_results):
             sbest = ga_results.generation_solutions[generation][ibest, :]
             best_solutions[generation, :] = sbest
 
-        ax[1].plot(best_solutions[:, 0], best_solutions[:, 1], 'ko--', ms=5)
+        ax.plot(best_solutions[:, 0], best_solutions[:, 1], 'ko--', ms=5)
     plt.show()
 
 
@@ -74,7 +75,7 @@ def run_rastrigin(n=10):
     """
     m = Rastrigin(n)
     ga_instance = GA([-5.12]*n, [5.12]*n, m.f,
-                     num_generations=50, mutation_probability=0.1, pop_size=20, crossover_probability=0.7)
+                     num_generations=50, mutation_probability=0.1, pop_size=100, crossover_probability=0.9)
     ga_instance.run()
 
     plot_execution_summary(ga_instance)
@@ -93,6 +94,6 @@ def run_rosenbrock():
 
 
 if __name__ == "__main__":
-    run_rastrigin(2)
+    run_rastrigin()
     # run_quadratic()
     # run_rosenbrock()
