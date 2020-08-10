@@ -90,7 +90,7 @@ def run_rastrigin(n=10):
     """
     m = Rastrigin(n)
     ga_instance = GA([-5.12]*n, [5.12]*n, m.f,
-                     num_generations=100, mutation_probability=0.01, pop_size=10, crossover_probability=0.8)
+                     num_generations=100, mutation_probability=0.1, pop_size=10, crossover_probability=0.8)
     ga_instance.run()
 
     plot_execution_summary(ga_instance)
@@ -110,7 +110,7 @@ def run_rosenbrock():
 
 
 if __name__ == "__main__":
-    # run_rastrigin()
+    run_rastrigin()
     # run_quadratic()
     # run_rosenbrock()
-    run_queens()
+    # run_queens()

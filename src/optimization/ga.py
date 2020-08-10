@@ -90,11 +90,8 @@ class GA:
             offspring_crossover = self.single_point_crossover(parents)
 
             # Mutation
-            offspring_mutated = self.flip_bit_mutation(offspring_crossover)
-
-            # Survivor selection
-            # offspring_survived = self.survivor_selection(
-            #     offspring_mutated, self.population_size)
+            offspring_mutated = self.flip_bit_mutation_per_individual(
+                offspring_crossover)
 
             # Store GA progress data
             self.generation_parents[generation] = parents
@@ -105,6 +102,7 @@ class GA:
             self.generation_offspring_crossover[generation] = offspring_crossover
 
             # Update population
+            # Using generational approach, so population is the offspring only
             self.population = self.decode(offspring_mutated)
 
             if(debug):
@@ -118,38 +116,38 @@ class GA:
                 print(
                     '===========================================================================================')
 
-            if(generation > 0):
-                generation_best = self.population[np.argmax(fitness)]
-                previous_best = self.generation_solutions[generation - 1][np.argmax(
-                    self.best_solutions_fitness[generation-1]), :]
+                if(generation > 0):
+                    generation_best = self.population[np.argmax(fitness)]
+                    previous_best = self.generation_solutions[generation - 1][np.argmax(
+                        self.best_solutions_fitness[generation-1]), :]
 
-                diff_best = np.linalg.norm(generation_best-previous_best)
+                    diff_best = np.linalg.norm(generation_best-previous_best)
 
-                if diff_best < self.x_tol:
-                    print('Terminating due to x_tol convergence...')
-                    break
+                    if diff_best < self.x_tol:
+                        print('Terminating due to x_tol convergence...')
+                        break
 
-            if(generation > 0):
-                generation_best = np.max(fitness)
-                previous_best = self.best_solutions_fitness[generation - 1]
+                if(generation > 0):
+                    generation_best = np.max(fitness)
+                    previous_best = self.best_solutions_fitness[generation - 1]
 
-                diff = np.abs(generation_best -
-                              previous_best)/generation_best
-                if diff < self.fitness_tol:
-                    print('Terminating due to BEST fitness_tol convergence...')
-                    break
+                    diff = np.abs(generation_best -
+                                  previous_best)/generation_best
+                    if diff < self.fitness_tol:
+                        print('Terminating due to BEST fitness_tol convergence...')
+                        break
 
-            if(generation > 0):
-                generation_mean = np.mean(fitness)
-                previous_mean = np.mean(
-                    self.generation_fitness[generation - 1])
+                if(generation > 0):
+                    generation_mean = np.mean(fitness)
+                    previous_mean = np.mean(
+                        self.generation_fitness[generation - 1])
 
-                diff = np.abs(generation_mean -
-                              previous_mean)/previous_mean
+                    diff = np.abs(generation_mean -
+                                  previous_mean)/previous_mean
 
-                if diff < self.fitness_tol:
-                    print('Terminating due to AVG fitness_tol convergence...')
-                    break
+                    if diff < self.fitness_tol:
+                        print('Terminating due to AVG fitness_tol convergence...')
+                        break
 
         print('Finishing GA...')
 
@@ -205,42 +203,27 @@ class GA:
 
         return parents
 
-    def random_selection(self, fitness, num_parents):
-        """
-        Selects the parents randomly. Later, these parents will mate to produce the offspring.
-        """
-        parents = np.empty((num_parents, self.population.shape[1]))
-
-        rand_indices = np.random.randint(
-            low=0.0, high=fitness.shape[0], size=num_parents)
-
-        for parent_num in range(num_parents):
-            parents[parent_num, :] = self.population[rand_indices[parent_num], :]
-        return parents
-
     def single_point_crossover(self, parents):
         """
         Applies the single-point crossover. It selects a point randomly at which crossover takes place between the pairs of parents.
         """
         n = parents.shape[0]
-
-        pairs = list(itertools.combinations(range(0, n), 2))
-        # two offsprings for each pair
-        num_offsprings = len(pairs) * 2
-        offspring = np.empty(
-            (num_offsprings, self.num_variables), dtype=parents.dtype)
+        np.random.shuffle(parents)
+        # two offsprings for each parent pair
+        offspring = np.empty((n, self.num_variables), dtype=parents.dtype)
 
         for var_index in range(self.num_variables):
             offspring_list = []
-            for index_1, index_2 in pairs:
-                parent1 = parents[index_1, var_index]
-                parent2 = parents[index_2, var_index]
-
-                # Crossover probability
-                prob = np.random.random()
+            for index in range(int(n / 2)):
+                parent1 = parents[index, var_index]
+                # Gets a random parent to mate
+                parent2 = parents[index + int(n / 2), var_index]
 
                 offspring1 = parent1
                 offspring2 = parent2
+
+                # Crossover probability
+                prob = np.random.random()
 
                 # Apply crossover between parents only if the probability is lower
                 if(prob < self.crossover_probability):
@@ -257,6 +240,28 @@ class GA:
             offspring[:, var_index] = np.array(offspring_list)
 
         return offspring
+
+    def flip_bit_mutation_per_individual(self, offsprings):
+        num_offsprings = offsprings.shape[0]
+        for i in range(num_offsprings):
+            for var_index in range(self.num_variables):
+                prob = np.random.random()
+                if prob < self.mutation_probability:
+                    bits_to_flip = np.ceil(
+                        self.mutation_probability * self.num_bits)
+                    rand_indexes = np.random.randint(
+                        low=0, high=self.num_bits, size=int(bits_to_flip))
+
+                    variable = str(offsprings[i, var_index])
+                    for k in rand_indexes:
+                        chromosome = bool(int(variable[k]))
+                        mutated = not chromosome
+                        variable = variable[:k] + str(int(mutated)) + (
+                            variable[(k+1):] if k < (self.num_bits-1) else '')
+
+                    offsprings[i, var_index] = variable
+
+        return offsprings
 
     def flip_bit_mutation(self, offsprings):
         num_offsprings = offsprings.shape[0]
