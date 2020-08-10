@@ -3,7 +3,11 @@ import matplotlib.pyplot as plt
 from src.models.rosenbrock import Rosenbrock
 from src.models.rastrigin import Rastrigin
 from src.models.test_functions import Quadratic
+from src.models.queens import NQueens
+
 from src.optimization.ga import GA
+from src.optimization.ga_permutation import GAPermutation
+
 from math import log
 from mpl_toolkits import mplot3d
 
@@ -62,6 +66,10 @@ def plot_execution_summary(ga_results):
 def run_queens():
     """Executa o algoritmo GA para a função das N rainhas
     """
+    m = NQueens()
+    ga_instance = GAPermutation(m.f,
+                                num_generations=100, mutation_probability=0.001, pop_size=10)
+    ga_instance.run()
 
 
 def run_quadratic():
@@ -102,6 +110,7 @@ def run_rosenbrock():
 
 
 if __name__ == "__main__":
-    run_rastrigin()
+    # run_rastrigin()
     # run_quadratic()
     # run_rosenbrock()
+    run_queens()

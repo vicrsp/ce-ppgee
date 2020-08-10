@@ -104,6 +104,9 @@ class GA:
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
 
+            # Update population
+            self.population = self.decode(offspring_mutated)
+
             if(debug):
                 # Log generation results:
                 print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
@@ -148,29 +151,7 @@ class GA:
                     print('Terminating due to AVG fitness_tol convergence...')
                     break
 
-            # Update population
-            self.population = self.decode(offspring_mutated)
-
         print('Finishing GA...')
-
-    # def survivor_selection_rank(self, parents, fitness_parents, offsprings, num_survivors):
-    #     """
-    #     Selects the survivors based on rank
-    #     """
-    #     filtered_offsprings = []
-    #     for offspring in offsprings:
-    #         if offspring not in parents:
-    #             filtered_offsprings.append(offspring)
-
-    #     fitness = self.cal_pop_fitness(
-    #         self.decode(np.array(filtered_offsprings)))
-    #     fitness_sorted = sorted(range(len(fitness)), key=lambda k: fitness[k])
-    #     fitness_sorted.reverse()
-
-    #     parents = np.empty((num_survivors, self.population.shape[1]))
-    #     for parent_num in range(num_survivors):
-    #         parents[parent_num, :] = self.population[fitness_sorted[parent_num], :]
-    #     return parents
 
     def roulette_selection(self, fitness, num_parents):
         """
