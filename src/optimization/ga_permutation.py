@@ -54,7 +54,7 @@ class GAPermutation:
         self.fitness_eval = self.fitness_eval + pop_fitness.shape[0]
         return pop_fitness
 
-    def run(self, debug=False):
+    def run(self, debug=True):
         print('Starting GAPermutation...')
         self.initialize_population()
 
@@ -63,7 +63,8 @@ class GAPermutation:
             fitness = self.cal_pop_fitness(self.population)
 
             # Selecting the best parents in the population for mating.
-            parents = self.selection(fitness)
+            parents = self.selection(
+                fitness, self.population_size, self.population_size)
 
             # Crossover
             offspring_crossover = self.crossover(parents)
@@ -83,6 +84,17 @@ class GAPermutation:
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
 
+            if(debug):
+                # Log generation results:
+                print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
+                    generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
+                print('Generation #{}: Best solution: {}'.format(
+                    generation, self.population[np.argmax(fitness)]))
+                print('Generation #{}: Worst solution: {}'.format(
+                    generation, self.population[np.argmin(fitness)]))
+                print(
+                    '===========================================================================================')
+
             # Update population
             self.population = offspring_survived
 
@@ -90,15 +102,12 @@ class GAPermutation:
 
     def crossover(self, parents):
         n = parents.shape[0]
-        pairs = list(itertools.combinations(range(0, n), 2))
+        np.random.shuffle(parents)
+        offspring = np.empty((n, self.max_int), dtype=parents.dtype)
 
-        num_offsprings = len(pairs) * 2
-        offspring = np.empty(
-            (num_offsprings, self.max_int), dtype=parents.dtype)
-        index = 0
-        for index_1, index_2 in pairs:
-            parent1 = parents[index_1, :]
-            parent2 = parents[index_2, :]
+        for index in np.arange(int(n), step=2):
+            parent1 = parents[index, :]
+            parent2 = parents[index+1, :]
 
             valid_offspring = np.array([parent1, parent2])
 
@@ -109,17 +118,25 @@ class GAPermutation:
 
             offspring[index, :] = valid_offspring[0, :]
             offspring[index+1, :] = valid_offspring[1, :]
-            index = index + 2
 
         return offspring
 
-    # TODO: parametrizar a quantidade a escolher da população
-    def selection(self, fitness):
-        sort_indexes = np.argsort(fitness)
-        best = self.population[sort_indexes[-1], :]
-        second_best = self.population[sort_indexes[-2], :]
+    def selection(self, fitness, num_parents, num_tournament):
+        parents = np.zeros((num_parents, self.max_int))
+        for i in np.arange(num_parents, step=2):
+            random_indexes = np.random.randint(
+                low=0, high=self.population_size, size=num_tournament)
 
-        return np.array([best, second_best])
+            random_fitness = fitness[random_indexes]
+            random_selection = self.population[random_indexes]
+
+            sort_indexes = np.argsort(random_fitness)
+            best = random_selection[sort_indexes[-1], :]
+            second_best = random_selection[sort_indexes[-2], :]
+
+            parents[i, :] = best
+            parents[i+1, :] = second_best
+        return parents
 
     def survivor_selection(self, fitness, offspring):
         offspring_fitness = self.cal_pop_fitness(offspring)
@@ -164,19 +181,6 @@ class GAPermutation:
                     s2 = s2 + 1
 
         return offspring
-
-    def random_selection(self, fitness, num_parents=2):
-        """
-        Selects the parents randomly. Later, these parents will mate to produce the offspring.
-        """
-        parents = np.empty((num_parents, self.population.shape[1]))
-
-        rand_indices = np.random.randint(
-            low=0.0, high=fitness.shape[0], size=num_parents)
-
-        for parent_num in range(num_parents):
-            parents[parent_num, :] = self.population[rand_indices[parent_num], :]
-        return parents
 
     def mutation(self, offsprings):
         m, n = offsprings.shape

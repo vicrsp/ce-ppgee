@@ -12,6 +12,44 @@ from math import log
 from mpl_toolkits import mplot3d
 
 
+def nqueens_plot(ga_results):
+    mean_fitness = [log(1 / np.mean(v)) for v in ga_results.generation_fitness]
+    best_fitness = [log(1 / np.max(v)) for v in ga_results.generation_fitness]
+
+    _, ax = plt.subplots()
+    ax.plot(mean_fitness, 'b.')
+    ax.plot(best_fitness, 'k.')
+    ax.legend(['Mean fitness', 'Best fitness'])
+    ax.set_xlabel('Generation #')
+    ax.set_ylabel('Fitness')
+
+    best_solutions = np.empty(
+        (ga_results.num_generations, 8))
+    for generation in ga_results.generation_solutions.keys():
+        fitness = ga_results.generation_fitness[generation]
+        ibest = np.argmax(fitness)
+        sbest = ga_results.generation_solutions[generation][ibest, :]
+        best_solutions[generation, :] = sbest
+
+    _, ax1 = plt.subplots(8, 1)
+
+    for i in range(8):
+        ax1[i].plot(best_solutions[:, i])
+        ax1[i].set_ylabel('x_{}'.format(i))
+
+    image = np.zeros((8, 8))
+
+    best_solution = best_solutions[-1, :]
+    for index, val in enumerate(best_solution):
+        image[index, int(val)] = 1
+
+    plt.matshow(image)
+    plt.xticks(range(8), ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+    plt.yticks(range(8), range(8))
+
+    plt.show()
+
+
 def data_for_contour_plot(lb, ub, fitness,):
     n = 100
     x = np.linspace(lb[0], ub[0], n)
@@ -68,8 +106,9 @@ def run_queens():
     """
     m = NQueens()
     ga_instance = GAPermutation(m.f,
-                                num_generations=100, mutation_probability=0.001, pop_size=10)
+                                num_generations=50, mutation_probability=0.1, pop_size=20, crossover_probability=0.9)
     ga_instance.run()
+    nqueens_plot(ga_instance)
 
 
 def run_quadratic():
@@ -103,14 +142,14 @@ def run_rosenbrock():
     """
     m = Rosenbrock()
     ga_instance = GA([-1]*2, [1]*2, m.f,
-                     num_generations=50, mutation_probability=0.01, crossover_probability=0.7, pop_size=10)
+                     num_generations=50, mutation_probability=0.1, crossover_probability=0.7, pop_size=10)
     ga_instance.run()
 
     plot_execution_summary(ga_instance)
 
 
 if __name__ == "__main__":
-    run_rastrigin()
+    # run_rastrigin()
     # run_quadratic()
     # run_rosenbrock()
-    # run_queens()
+    run_queens()

@@ -209,15 +209,14 @@ class GA:
         """
         n = parents.shape[0]
         np.random.shuffle(parents)
-        # two offsprings for each parent pair
         offspring = np.empty((n, self.num_variables), dtype=parents.dtype)
 
         for var_index in range(self.num_variables):
             offspring_list = []
-            for index in range(int(n / 2)):
+            for index in np.arange(int(n), step=2):
                 parent1 = parents[index, var_index]
                 # Gets a random parent to mate
-                parent2 = parents[index + int(n / 2), var_index]
+                parent2 = parents[index + 1, var_index]
 
                 offspring1 = parent1
                 offspring2 = parent2
@@ -263,7 +262,7 @@ class GA:
 
         return offsprings
 
-    def flip_bit_mutation(self, offsprings):
+    def flip_bit_mutation_per_bit(self, offsprings):
         num_offsprings = offsprings.shape[0]
         for i in range(num_offsprings):
             for var_index in range(self.num_variables):
