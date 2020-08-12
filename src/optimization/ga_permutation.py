@@ -63,8 +63,7 @@ class GAPermutation:
             fitness = self.cal_pop_fitness(self.population)
 
             # Selecting the best parents in the population for mating.
-            parents = self.selection(
-                fitness, self.population_size, self.population_size)
+            parents = self.selection(fitness, int(self.population_size/2))
 
             # Crossover
             offspring_crossover = self.crossover(parents)
@@ -101,41 +100,101 @@ class GAPermutation:
         print('Finishing GA...')
 
     def crossover(self, parents):
-        n = parents.shape[0]
-        np.random.shuffle(parents)
-        offspring = np.empty((n, self.max_int), dtype=parents.dtype)
-
-        for index in np.arange(int(n), step=2):
-            parent1 = parents[index, :]
-            parent2 = parents[index+1, :]
-
-            valid_offspring = np.array([parent1, parent2])
-
-            prob = np.random.rand()
-            if prob < self.crossover_probability:
-                valid_offspring = self.cut_and_crossfill_crossover(
-                    valid_offspring)
-
-            offspring[index, :] = valid_offspring[0, :]
-            offspring[index+1, :] = valid_offspring[1, :]
+        prob = np.random.rand()
+        offspring = parents
+        if prob < self.crossover_probability:
+            offspring = self.cut_and_crossfill_crossover(parents)
 
         return offspring
 
-    def selection(self, fitness, num_parents, num_tournament):
-        parents = np.zeros((num_parents, self.max_int))
-        for i in np.arange(num_parents, step=2):
-            random_indexes = np.random.randint(
-                low=0, high=self.population_size, size=num_tournament)
+    def tournament_selection(self, fitness, num_parents, num_candidates, with_replacement=True):
+        """
+        Selects the parents with tournament selection
+        """
+        parents = np.empty((num_parents, self.max_int))
+        parents_fitness = np.empty(num_parents)
 
-            random_fitness = fitness[random_indexes]
-            random_selection = self.population[random_indexes]
+        winner_indexes = []
+        nx = fitness.shape[0]
 
-            sort_indexes = np.argsort(random_fitness)
-            best = random_selection[sort_indexes[-1], :]
-            second_best = random_selection[sort_indexes[-2], :]
+        for parent_num in range(num_parents):
+            tournament_fitness = []
+            tournament_indices = []
 
-            parents[i, :] = best
-            parents[i+1, :] = second_best
+            if with_replacement:
+                tournament_indices = np.random.randint(
+                    low=0.0, high=nx, size=num_candidates)
+                tournament_fitness = fitness[tournament_indices]
+            else:
+                rand_indices = np.random.randint(
+                    low=0.0, high=(nx - parent_num), size=num_candidates)
+                indexes_remaining = np.where(range(nx) not in winner_indexes)
+
+                tournament_fitness = fitness[indexes_remaining]
+                tournament_indices = indexes_remaining[rand_indices]
+
+            winner_index = tournament_indices[np.argsort(
+                tournament_fitness)[-1]]
+            winner_indexes.append(winner_index)
+            parents[parent_num, :] = self.population[winner_index, :]
+            parents_fitness[parent_num] = fitness[winner_index]
+
+        return parents, parents_fitness
+
+    def roulette_selection(self, fitness, num_parents):
+        """
+        Selects the parents using the roulette wheel selection technique.
+        """
+        fitness_sum = np.sum(fitness)
+        probs = fitness / fitness_sum
+        a = np.zeros(probs.shape[0])
+        for i in range(probs.shape[0]):
+            a[i] = probs[i] + np.sum(probs[:(i-1)]) if i > 0 else 0
+
+        parents = np.empty((num_parents, self.max_int))
+        parents_fitness = np.empty(num_parents)
+
+        rand_probs = np.random.rand(num_parents)
+        for parent_num in range(num_parents):
+            rand_prob = rand_probs[parent_num]
+            for idx in range(probs.shape[0]):
+                if a[idx] > rand_prob:
+                    parents[parent_num, :] = self.population[idx, :]
+                    parents_fitness[parent_num] = fitness[idx]
+                    break
+
+        return parents, parents_fitness
+
+    def selection(self, fitness, num_tournament):
+        parents = np.zeros((2, self.max_int))
+
+        # # Do not allow repeated individuals to be selected
+        # random_indexes = np.arange(self.population_size)
+        # np.random.shuffle(random_indexes)
+        # random_indexes = random_indexes[:num_tournament]
+
+        # random_fitness = fitness[random_indexes]
+        # random_selection = self.population[random_indexes]
+        # parent_selection, parent_fitness = self.roulette_selection(
+        #     fitness, self.population_size)
+
+        parent_selection, parent_fitness = self.tournament_selection(
+            fitness, self.population_size, int(0.8 * self.population_size))
+
+        sort_indexes = np.argsort(parent_fitness)
+        best = parent_selection[sort_indexes[-1], :]
+        second_best = parent_selection[sort_indexes[-2], :]
+
+        # Do not allow selected parents to be the same
+        for index in range(3, self.population_size):
+            if (second_best == best).all():
+                second_best = parent_selection[sort_indexes[-index], :]
+            else:
+                break
+
+        parents[0, :] = best
+        parents[1, :] = second_best
+
         return parents
 
     def survivor_selection(self, fitness, offspring):

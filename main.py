@@ -13,8 +13,8 @@ from mpl_toolkits import mplot3d
 
 
 def nqueens_plot(ga_results):
-    mean_fitness = [log(1 / np.mean(v)) for v in ga_results.generation_fitness]
-    best_fitness = [log(1 / np.max(v)) for v in ga_results.generation_fitness]
+    mean_fitness = [28 - np.mean(v) for v in ga_results.generation_fitness]
+    best_fitness = [28 - np.max(v) for v in ga_results.generation_fitness]
 
     _, ax = plt.subplots()
     ax.plot(mean_fitness, 'b.')
@@ -50,7 +50,7 @@ def nqueens_plot(ga_results):
     plt.show()
 
 
-def data_for_contour_plot(lb, ub, fitness,):
+def data_for_contour_plot(lb, ub, fitness):
     n = 100
     x = np.linspace(lb[0], ub[0], n)
     y = np.linspace(lb[1], ub[1], n)
@@ -106,7 +106,7 @@ def run_queens():
     """
     m = NQueens()
     ga_instance = GAPermutation(m.f,
-                                num_generations=50, mutation_probability=0.1, pop_size=20, crossover_probability=0.9)
+                                num_generations=100, mutation_probability=0.1, pop_size=20, crossover_probability=0.8)
     ga_instance.run()
     nqueens_plot(ga_instance)
 
