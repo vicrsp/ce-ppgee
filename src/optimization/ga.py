@@ -93,6 +93,10 @@ class GA:
             offspring_mutated = self.flip_bit_mutation_per_individual(
                 offspring_crossover)
 
+            # Update population
+            # Using generational approach, so population is the offspring only
+            self.population = self.decode(offspring_mutated)
+
             # Store GA progress data
             self.generation_parents[generation] = parents
             self.generation_solutions[generation] = self.population
@@ -100,10 +104,6 @@ class GA:
             self.best_solutions_fitness.append(np.max(fitness))
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
-
-            # Update population
-            # Using generational approach, so population is the offspring only
-            self.population = self.decode(offspring_mutated)
 
             if(debug):
                 # Log generation results:
@@ -116,38 +116,45 @@ class GA:
                 print(
                     '===========================================================================================')
 
-                if(generation > 0):
-                    generation_best = self.population[np.argmax(fitness)]
-                    previous_best = self.generation_solutions[generation - 1][np.argmax(
-                        self.best_solutions_fitness[generation-1]), :]
+            # if(generation > 0):
+            #     generation_best = self.population[np.argmax(fitness)]
+            #     previous_best = self.generation_solutions[generation - 1][np.argmax(
+            #         self.best_solutions_fitness[generation-1]), :]
 
-                    diff_best = np.linalg.norm(generation_best-previous_best)
+            #     diff_best = np.linalg.norm(generation_best-previous_best)
 
-                    if diff_best < self.x_tol:
-                        print('Terminating due to x_tol convergence...')
-                        break
+            #     if diff_best < self.x_tol:
+            #         print('Terminating due to BEST x_tol convergence...')
+            #         break
+            # if(generation > 0):
+            #     previous_generation = self.generation_solutions[generation - 1]
+            #     diff_best = np.linalg.norm(self.population-previous_generation)
 
-                if(generation > 0):
-                    generation_best = np.max(fitness)
-                    previous_best = self.best_solutions_fitness[generation - 1]
+            #     if diff_best < self.x_tol:
+            #         print('Terminating due AVG to x_tol convergence...')
+            #         break
 
-                    diff = np.abs(generation_best -
-                                  previous_best)/generation_best
-                    if diff < self.fitness_tol:
-                        print('Terminating due to BEST fitness_tol convergence...')
-                        break
+                # if(generation > 0):
+                #     generation_best = np.max(fitness)
+                #     previous_best = self.best_solutions_fitness[generation - 1]
 
-                if(generation > 0):
-                    generation_mean = np.mean(fitness)
-                    previous_mean = np.mean(
-                        self.generation_fitness[generation - 1])
+                #     diff = np.abs(generation_best -
+                #                   previous_best)/generation_best
+                #     if diff < self.fitness_tol:
+                #         print('Terminating due to BEST fitness_tol convergence...')
+                #         break
 
-                    diff = np.abs(generation_mean -
-                                  previous_mean)/previous_mean
+            # if(generation > 0):
+            #     generation_mean = np.mean(fitness)
+            #     previous_mean = np.mean(
+            #         self.generation_fitness[generation - 1])
 
-                    if diff < self.fitness_tol:
-                        print('Terminating due to AVG fitness_tol convergence...')
-                        break
+            #     diff = np.abs(generation_mean -
+            #                   previous_mean)/previous_mean
+
+            #     if diff < self.fitness_tol:
+            #         print('Terminating due to AVG fitness_tol convergence...')
+            #         break
 
         print('Finishing GA...')
 
