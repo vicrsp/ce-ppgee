@@ -12,6 +12,13 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Python: grid_search.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}/grid_search.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

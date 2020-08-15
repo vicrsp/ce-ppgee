@@ -144,17 +144,17 @@ class GA:
                 #         print('Terminating due to BEST fitness_tol convergence...')
                 #         break
 
-            # if(generation > 0):
-            #     generation_mean = np.mean(fitness)
-            #     previous_mean = np.mean(
-            #         self.generation_fitness[generation - 1])
+            if(generation > 0):
+                generation_mean = np.mean(fitness)
+                previous_mean = np.mean(
+                    self.generation_fitness[generation - 1])
 
-            #     diff = np.abs(generation_mean -
-            #                   previous_mean)/previous_mean
+                diff = np.abs(generation_mean -
+                              previous_mean)/generation_mean
 
-            #     if diff < self.fitness_tol:
-            #         print('Terminating due to AVG fitness_tol convergence...')
-            #         break
+                if diff < self.fitness_tol:
+                    print('Terminating due to AVG fitness_tol convergence...')
+                    break
 
         print('Finishing GA...')
 
