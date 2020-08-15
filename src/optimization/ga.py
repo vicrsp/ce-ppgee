@@ -42,6 +42,9 @@ class GA:
         self.x_tol = 10 ** -6
         self.fitness_tol = 10 ** -6
         self.fitness_eval = 0
+        self.max_feval = 10000
+
+        print(self.precision)
 
     def initialize_population(self):
         """
@@ -74,6 +77,9 @@ class GA:
         self.initialize_population()
 
         for generation in range(self.num_generations):
+            if self.fitness_eval >= self.max_feval:
+                break
+
             # Measuring the fitness of each chromosome in the population.
             fitness = self.cal_pop_fitness(self.population)
 
@@ -105,16 +111,16 @@ class GA:
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
 
-            if(debug):
-                # Log generation results:
-                print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
-                    generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
-                print('Generation #{}: Best solution: {}'.format(
-                    generation, self.population[np.argmax(fitness)]))
-                print('Generation #{}: Worst solution: {}'.format(
-                    generation, self.population[np.argmin(fitness)]))
-                print(
-                    '===========================================================================================')
+            # if(debug):
+            #     # Log generation results:
+            #     print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
+            #         generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
+            #     print('Generation #{}: Best solution: {}'.format(
+            #         generation, self.population[np.argmax(fitness)]))
+            #     print('Generation #{}: Worst solution: {}'.format(
+            #         generation, self.population[np.argmin(fitness)]))
+            #     print(
+            #         '===========================================================================================')
 
             # if(generation > 0):
             #     generation_best = self.population[np.argmax(fitness)]
@@ -134,27 +140,27 @@ class GA:
             #         print('Terminating due AVG to x_tol convergence...')
             #         break
 
-                # if(generation > 0):
-                #     generation_best = np.max(fitness)
-                #     previous_best = self.best_solutions_fitness[generation - 1]
+            # if(generation > 0):
+            #     generation_best = np.max(fitness)
+            #     previous_best = self.best_solutions_fitness[generation - 1]
 
-                #     diff = np.abs(generation_best -
-                #                   previous_best)/generation_best
-                #     if diff < self.fitness_tol:
-                #         print('Terminating due to BEST fitness_tol convergence...')
-                #         break
+            #     diff = np.abs(generation_best -
+            #                   previous_best)/generation_best
+            #     if diff < self.fitness_tol:
+            #         print('Terminating due to BEST fitness_tol convergence...')
+            #         break
 
-            if(generation > 0):
-                generation_mean = np.mean(fitness)
-                previous_mean = np.mean(
-                    self.generation_fitness[generation - 1])
+            # if(generation > 0):
+            #     generation_mean = np.mean(fitness)
+            #     previous_mean = np.mean(
+            #         self.generation_fitness[generation - 1])
 
-                diff = np.abs(generation_mean -
-                              previous_mean)/generation_mean
+            #     diff = np.abs(generation_mean -
+            #                   previous_mean)/generation_mean
 
-                if diff < self.fitness_tol:
-                    print('Terminating due to AVG fitness_tol convergence...')
-                    break
+            #     if diff < self.fitness_tol:
+            #         print('Terminating due to AVG fitness_tol convergence...')
+            #         break
 
         print('Finishing GA...')
 
