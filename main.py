@@ -134,8 +134,10 @@ def run_rastrigin(n=10):
     """
     m = Rastrigin(n)
     ga_instance = GA([-5.12]*n, [5.12]*n, m.f,
-                     num_generations=1000, mutation_probability=0.05, pop_size=200, crossover_probability=0.8)
+                     num_generations=1000, mutation_probability=0.05, pop_size=50, crossover_probability=0.8, num_bits=16)
     ga_instance.run()
+
+    ga_instance.save_results('teste')
 
     plot_execution_summary(ga_instance)
 

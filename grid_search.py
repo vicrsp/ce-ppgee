@@ -21,9 +21,7 @@ def generate_rastrigin_statistics(pop_size, mutation_probability, crossover_prob
     m = Rastrigin(n)
 
     final_best_fitness = []
-    final_mean_fitness = []
     final_best_sol = []
-    final_mean_sol = []
     test_best_fitness = []
     test_mean_fitness = []
 
@@ -32,43 +30,27 @@ def generate_rastrigin_statistics(pop_size, mutation_probability, crossover_prob
                          num_generations=10000, mutation_probability=mutation_probability, pop_size=pop_size, crossover_probability=crossover_probability)
         ga_instance.run()
 
-        mean_fitness = [log(1 / np.mean(v))
-                        for v in ga_instance.generation_fitness]
-        best_fitness = [log(1 / np.max(v))
-                        for v in ga_instance.generation_fitness]
+        mean_fitness = [np.mean(v) for v in ga_instance.generation_fitness]
+        best_fitness = [np.max(v) for v in ga_instance.generation_fitness]
 
         test_best_fitness.append(best_fitness)
         test_mean_fitness.append(mean_fitness)
 
-        fitness = ga_instance.generation_fitness[-1]
-        ibest = np.argmax(fitness)
-        sbest = ga_instance.generation_solutions[len(
-            ga_instance.generation_fitness)-1][ibest, :]
-
-        final_mean_fitness.append(np.mean(mean_fitness))
-        final_best_fitness.append(np.min(best_fitness))
-        final_best_sol.append(sbest)
-        final_mean_sol.append(np.mean(
-            ga_instance.generation_solutions[len(ga_instance.generation_fitness)-1]))
+        final_best_fitness.append(ga_instance.best_objective)
+        final_best_sol.append(ga_instance.best_objective)
 
     # Generate statistics table
     statistics = pd.DataFrame()
-    statistics['Média das soluções finais'] = np.array(final_mean_fitness)
     statistics['Melhor solução final'] = np.array(final_best_fitness)
 
-    bs_mean_fitness = bs.bootstrap(
-        np.array(final_mean_fitness), stat_func=bs_stats.mean)
     bs_best_fitness = bs.bootstrap(
         np.array(final_best_fitness), stat_func=bs_stats.mean)
 
     # print(statistics.describe())
-    print('Média das soluções finais: {} CI 95% ({}, {})'.format(bs_mean_fitness.value,
-                                                                 bs_mean_fitness.lower_bound, bs_mean_fitness.upper_bound))
-
     print('Melhor solução final: {} CI 95% ({}, {})'.format(bs_best_fitness.value,
                                                             bs_best_fitness.lower_bound, bs_best_fitness.upper_bound))
 
-    return test_best_fitness, test_mean_fitness, bs_mean_fitness, bs_best_fitness, statistics
+    return test_best_fitness, test_mean_fitness, bs_best_fitness, final_best_sol, statistics
 
 
 if __name__ == "__main__":
