@@ -120,7 +120,7 @@ class GA:
                     fitness, self.population_size))
             else:
                 parents = self.encode(self.tournament_selection(
-                    fitness, self.population_size, self.tournament_candidates, with_replacement=True))
+                    fitness, self.population_size, self.tournament_candidates))
 
             # Crossover
             offspring_crossover = self.single_point_crossover(
@@ -141,57 +141,6 @@ class GA:
             self.best_solutions_fitness.append(np.max(fitness))
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
-
-            # if(debug):
-            #     # Log generation results:
-            #     print('Generation #{}: Best fitness: {}; Avg Fitness: {}; Worst Fitness: {}'.format(
-            #         generation, np.max(fitness), np.mean(fitness), np.min(fitness)))
-            #     print('Generation #{}: Best solution: {}'.format(
-            #         generation, self.population[np.argmax(fitness)]))
-            #     print('Generation #{}: Worst solution: {}'.format(
-            #         generation, self.population[np.argmin(fitness)]))
-            #     print(
-            #         '===========================================================================================')
-
-            # if(generation > 0):
-            #     generation_best = self.population[np.argmax(fitness)]
-            #     previous_best = self.generation_solutions[generation - 1][np.argmax(
-            #         self.best_solutions_fitness[generation-1]), :]
-
-            #     diff_best = np.linalg.norm(generation_best-previous_best)
-
-            #     if diff_best < self.x_tol:
-            #         print('Terminating due to BEST x_tol convergence...')
-            #         break
-            # if(generation > 0):
-            #     previous_generation = self.generation_solutions[generation - 1]
-            #     diff_best = np.linalg.norm(self.population-previous_generation)
-
-            #     if diff_best < self.x_tol:
-            #         print('Terminating due AVG to x_tol convergence...')
-            #         break
-
-            # if(generation > 0):
-            #     generation_best = np.max(fitness)
-            #     previous_best = self.best_solutions_fitness[generation - 1]
-
-            #     diff = np.abs(generation_best -
-            #                   previous_best)/generation_best
-            #     if diff < self.fitness_tol:
-            #         print('Terminating due to BEST fitness_tol convergence...')
-            #         break
-
-            # if(generation > 0):
-            #     generation_mean = np.mean(fitness)
-            #     previous_mean = np.mean(
-            #         self.generation_fitness[generation - 1])
-
-            #     diff = np.abs(generation_mean -
-            #                   previous_mean)/generation_mean
-
-            #     if diff < self.fitness_tol:
-            #         print('Terminating due to AVG fitness_tol convergence...')
-            #         break
 
         self.best_objective = self.descale(self.best_fitness)
 

@@ -1,11 +1,10 @@
 import numpy as np
 import itertools
 import random
-from math import factorial
 
 
 class GAPermutation:
-    def __init__(self, fitness_func, pop_size=10, num_generations=10, max_int=8, crossover_probability=0.6, mutation_probability=0.05):
+    def __init__(self, fitness_func, pop_size=10, num_generations=100, max_int=8, crossover_probability=0.6, mutation_probability=0.05):
         self.population_size = pop_size
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
@@ -16,11 +15,12 @@ class GAPermutation:
         self.best_solutions_fitness = []
         self.generation_fitness = []
         self.generation_solutions = {}
-        self.generation_parents = {}
-        self.generation_offspring_mutated = {}
-        self.generation_offspring_crossover = {}
 
         self.fitness_eval = 0
+        self.scale_factor = self.max_int*(self.max_int-1)/2
+        self.best_objective = np.Infinity
+        self.best_solution = []
+        self.best_fitness = 0
 
     def initialize_population(self):
         """
@@ -46,12 +46,14 @@ class GAPermutation:
         pop_fitness = []
         # Calculating the fitness value of each solution in the current population.
         for sol in population:
-            fitness = self.fitness_func(sol)
+            fitness = self.scale(self.fitness_func(sol))
             pop_fitness.append(fitness)
 
         pop_fitness = np.array(pop_fitness)
 
         self.fitness_eval = self.fitness_eval + pop_fitness.shape[0]
+        self.population_fitness = pop_fitness
+
         return pop_fitness
 
     def run(self, debug=True):
@@ -61,6 +63,19 @@ class GAPermutation:
         for generation in range(self.num_generations):
             # Measuring the fitness of each chromosome in the population.
             fitness = self.cal_pop_fitness(self.population)
+            best_fitness_index = np.argmax(fitness)
+            if(fitness[best_fitness_index] > self.best_fitness):
+                self.best_fitness = fitness[best_fitness_index]
+                self.best_solution = self.population[best_fitness_index, :]
+
+            # Store GA progress data
+            self.generation_solutions[generation] = self.population
+            self.generation_fitness.append(fitness)
+            self.best_solutions_fitness.append(np.max(fitness))
+
+            if self.descale(self.best_fitness) == 0:
+                print('Optimal solution found...')
+                break
 
             # Selecting the best parents in the population for mating.
             parents = self.selection(fitness, int(self.population_size/2))
@@ -74,14 +89,6 @@ class GAPermutation:
             # Survivor selection
             offspring_survived = self.survivor_selection(
                 fitness, offspring_mutated)
-
-            # Store GA progress data
-            self.generation_parents[generation] = parents
-            self.generation_solutions[generation] = self.population
-            self.generation_fitness.append(fitness)
-            self.best_solutions_fitness.append(np.max(fitness))
-            self.generation_offspring_mutated[generation] = offspring_mutated
-            self.generation_offspring_crossover[generation] = offspring_crossover
 
             if(debug):
                 # Log generation results:
@@ -97,17 +104,19 @@ class GAPermutation:
             # Update population
             self.population = offspring_survived
 
+        self.best_objective = self.descale(self.best_fitness)
+
         print('Finishing GA...')
 
     def crossover(self, parents):
         prob = np.random.rand()
         offspring = parents
-        if prob < self.crossover_probability:
-            offspring = self.cut_and_crossfill_crossover(parents)
+        if prob < self.get_crossover_probability():
+            offspring = self.ordered_crossover(parents)
 
         return offspring
 
-    def tournament_selection(self, fitness, num_parents, num_candidates, with_replacement=True):
+    def tournament_selection(self, fitness, num_parents, num_candidates):
         """
         Selects the parents with tournament selection
         """
@@ -118,20 +127,10 @@ class GAPermutation:
         nx = fitness.shape[0]
 
         for parent_num in range(num_parents):
-            tournament_fitness = []
-            tournament_indices = []
 
-            if with_replacement:
-                tournament_indices = np.random.randint(
-                    low=0.0, high=nx, size=num_candidates)
-                tournament_fitness = fitness[tournament_indices]
-            else:
-                rand_indices = np.random.randint(
-                    low=0.0, high=(nx - parent_num), size=num_candidates)
-                indexes_remaining = np.where(range(nx) not in winner_indexes)
-
-                tournament_fitness = fitness[indexes_remaining]
-                tournament_indices = indexes_remaining[rand_indices]
+            tournament_indices = np.random.randint(
+                low=0.0, high=nx, size=num_candidates)
+            tournament_fitness = fitness[tournament_indices]
 
             winner_index = tournament_indices[np.argsort(
                 tournament_fitness)[-1]]
@@ -168,29 +167,12 @@ class GAPermutation:
     def selection(self, fitness, num_tournament):
         parents = np.zeros((2, self.max_int))
 
-        # # Do not allow repeated individuals to be selected
-        # random_indexes = np.arange(self.population_size)
-        # np.random.shuffle(random_indexes)
-        # random_indexes = random_indexes[:num_tournament]
-
-        # random_fitness = fitness[random_indexes]
-        # random_selection = self.population[random_indexes]
-        # parent_selection, parent_fitness = self.roulette_selection(
-        #     fitness, self.population_size)
-
         parent_selection, parent_fitness = self.tournament_selection(
             fitness, self.population_size, int(0.8 * self.population_size))
 
         sort_indexes = np.argsort(parent_fitness)
         best = parent_selection[sort_indexes[-1], :]
         second_best = parent_selection[sort_indexes[-2], :]
-
-        # Do not allow selected parents to be the same
-        for index in range(3, self.population_size):
-            if (second_best == best).all():
-                second_best = parent_selection[sort_indexes[-index], :]
-            else:
-                break
 
         parents[0, :] = best
         parents[1, :] = second_best
@@ -248,7 +230,7 @@ class GAPermutation:
         for i in range(m):
             prob = np.random.rand()
             mutated[i, :] = offsprings[i, :]
-            if prob < self.mutation_probability:
+            if prob < self.get_mutation_probability():
                 pos_1, pos_2 = np.random.randint(low=0, high=n, size=2)
                 first_num = offsprings[i, pos_1]
                 second_num = offsprings[i, pos_2]
@@ -256,3 +238,53 @@ class GAPermutation:
                 mutated[i, pos_2] = first_num
 
         return mutated
+
+    def ordered_crossover(self, parents):
+        """
+        Executes an ordered crossover (OX) on the input individuals.
+        """
+        parent1, parent2 = parents[0, :], parents[1, :]
+
+        size = len(parent1)
+        a, b = random.sample(range(size), 2)
+        if a > b:
+            a, b = b, a
+
+        holes1, holes2 = [True] * size, [True] * size
+        for i in range(size):
+            if i < a or i > b:
+                holes1[int(parent2[i])] = False
+                holes2[int(parent1[i])] = False
+
+        # We must keep the original values somewhere before scrambling everything
+        temp1, temp2 = parent1, parent2
+        k1, k2 = b + 1, b + 1
+        for i in range(size):
+            if not holes1[int(temp1[(i + b + 1) % size])]:
+                parent1[int(k1 % size)] = temp1[int((i + b + 1) % size)]
+                k1 += 1
+
+            if not holes2[int(temp2[(i + b + 1) % size])]:
+                parent2[int(k2 % size)] = temp2[int((i + b + 1) % size)]
+                k2 += 1
+
+        # Swap the content between a and b (included)
+        for i in range(a, b + 1):
+            parent1[i], parent2[i] = parent2[i], parent1[i]
+
+        return np.array([parent1, parent2])
+
+    def scale(self, fx):
+        """
+        Scales the objective with Cmax scaling
+        """
+        return self.scale_factor - fx
+
+    def descale(self, fitness):
+        return self.scale_factor - fitness
+
+    def get_mutation_probability(self):
+        return self.mutation_probability
+
+    def get_crossover_probability(self):
+        return self.crossover_probability

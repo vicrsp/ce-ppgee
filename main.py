@@ -28,28 +28,27 @@ def nqueens_plot(ga_results):
     ax.set_xlabel('Generation #')
     ax.set_ylabel('Fitness')
 
-    best_solutions = np.empty(
-        (ga_results.num_generations, 8))
-    for generation in ga_results.generation_solutions.keys():
-        fitness = ga_results.generation_fitness[generation]
-        ibest = np.argmax(fitness)
-        sbest = ga_results.generation_solutions[generation][ibest, :]
-        best_solutions[generation, :] = sbest
+    # best_solutions = np.empty(
+    #     (ga_results.num_generations, 8))
+    # for generation in ga_results.generation_solutions.keys():
+    #     fitness = ga_results.generation_fitness[generation]
+    #     ibest = np.argmax(fitness)
+    #     sbest = ga_results.generation_solutions[generation][ibest, :]
+    #     best_solutions[generation, :] = sbest
 
-    _, ax1 = plt.subplots(8, 1)
+    # _, ax1 = plt.subplots(8, 1)
 
-    for i in range(8):
-        ax1[i].plot(best_solutions[:, i])
-        ax1[i].set_ylabel('x_{}'.format(i))
+    # for i in range(8):
+    #     ax1[i].plot(best_solutions[:, i])
+    #     ax1[i].set_ylabel('x_{}'.format(i))
 
     image = np.zeros((8, 8))
 
-    best_solution = best_solutions[-1, :]
-    for index, val in enumerate(best_solution):
+    for index, val in enumerate(ga_results.best_solution):
         image[index, int(val)] = 1
 
     plt.matshow(image)
-    plt.xticks(range(8), ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+    plt.xticks(range(8), range(8))
     plt.yticks(range(8), range(8))
 
     plt.show()
@@ -111,7 +110,7 @@ def run_queens():
     """
     m = NQueens()
     ga_instance = GAPermutation(m.f,
-                                num_generations=100, mutation_probability=0.1, pop_size=20, crossover_probability=0.8)
+                                num_generations=500, mutation_probability=0.1, pop_size=100, crossover_probability=0.8)
     ga_instance.run()
     nqueens_plot(ga_instance)
 
@@ -155,7 +154,7 @@ def run_rosenbrock():
 
 
 if __name__ == "__main__":
-    run_rastrigin()
+    # run_rastrigin()
     # run_quadratic()
     # run_rosenbrock()
-    # run_queens()
+    run_queens()
