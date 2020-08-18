@@ -43,25 +43,143 @@ def plot_execution_summary(ga_results, ga_results_2):
     ax[1].set_title('População = 100')
 
 
-def pop_size_results(n=10):
-    m = Rastrigin(n)
+def plot_scenarios(results_1, results_2, title1, title2):
 
-    ga_instance_pop10 = GA([-5.12]*n, [5.12]*n, m.f,
-                           pop_size=10, num_bits=20)
+    fig, ax = plt.subplots(2, 1, sharex=True)
+    sns.lineplot(data=results_1[results_1['generation'] < 50], x='generation',
+                 y='value', hue='type', ax=ax[0])
+    ax[0].legend(['Média', 'Melhor'])
+    ax[0].set_xlabel('Geração')
+    ax[0].set_ylabel('Função objetivo')
 
-    ga_instance_pop100 = GA([-5.12]*n, [5.12]*n, m.f,
-                            pop_size=100, num_bits=20)
+    sns.lineplot(data=results_2[results_2['generation'] < 50], x='generation',
+                 y='value', hue='type', ax=ax[1])
+    ax[1].legend(['Média', 'Melhor'])
+    ax[1].set_xlabel('Geração')
+    ax[1].set_ylabel('Função objetivo')
 
-    ga_instance_pop10.run()
-    ga_instance_pop100.run()
+    ax[0].set_title(title1)
+    ax[1].set_title(title2)
 
-    ga_instance_pop10.save_results('pop10')
-    ga_instance_pop100.save_results('pop100')
+    return fig
 
-    plot_execution_summary(ga_instance_pop10, ga_instance_pop100)
+
+def plot_execution_summary_crossover(results_1, results_2):
+
+    _, ax = plt.subplots(2, 1, sharex=True)
+    sns.lineplot(data=results_1, x='generation',
+                 y='value', hue='type', ax=ax[0])
+    ax[0].legend(['Média', 'Melhor'])
+    ax[0].set_xlabel('Geração')
+    ax[0].set_ylabel('Função objetivo')
+
+    sns.lineplot(data=results_2, x='generation',
+                 y='value', hue='type', ax=ax[1])
+    ax[1].legend(['Média', 'Melhor'])
+    ax[1].set_xlabel('Geração')
+    ax[1].set_ylabel('Função objetivo')
+
+    ax[0].set_title('Crossover: [0.6-0.8]')
+    ax[1].set_title('Crossover: [0.8-1.0]')
+
+
+def pop_size_results():
+    data_pop100 = run_scenario(pop_size=100, id='pop_10')
+    data_pop10 = run_scenario(pop_size=10, id='pop_100')
+
+    data_pop10.to_csv('scenario_pop10.csv')
+    data_pop100.to_csv('scenario_pop100.csv')
+
+    fig = plot_scenarios(data_pop100, data_pop10,
+                         'População = 10', 'População = 100')
 
     plt.tight_layout()
-    plt.show()
+    fig.savefig('scenario_pop_variation.png')
+
+
+def bits_results():
+    data_bits10 = run_scenario(pop_size=100, num_bits=10, id='bits_10')
+    data_bits30 = run_scenario(pop_size=100, num_bits=30, id='bits_30')
+
+    data_bits10.to_csv('scenario_bits10.csv')
+    data_bits30.to_csv('scenario_bits30.csv')
+
+    fig = plot_scenarios(data_bits10, data_bits30,
+                         'L = 10', 'L = 30')
+
+    plt.tight_layout()
+    fig.savefig('scenario_bits_variation.png')
+
+
+def run_scenario(n=10, runs=30, pop_size=100, num_bits=20, min_crossover_probability=0.6, max_crossover_probability=0.9, min_mutation_probability=0.01, max_mutation_probability=0.05, id=''):
+    m = Rastrigin(n)
+
+    data = pd.DataFrame(
+        columns=['idx', 'generation', 'type', 'value'])
+
+    for i in range(runs):
+        ga_instance = GA([-5.12]*n, [5.12]*n, m.f,
+                         pop_size=pop_size, num_bits=num_bits, min_crossover_probability=min_crossover_probability, max_crossover_probability=max_crossover_probability)
+        ga_instance.run()
+
+        mean_fitness = [ga_instance.descale(np.mean(v))
+                        for v in ga_instance.generation_fitness]
+        best_fitness = [ga_instance.descale(np.max(v))
+                        for v in ga_instance.generation_fitness]
+        data_instance = transform_data(i, ga_instance,
+                                       mean_fitness, best_fitness)
+
+        ga_instance.save_results('scenarion_{}_{}'.format(id, i))
+
+        data = data.append(data_instance, ignore_index=True)
+
+    return data
+
+
+def crossover_results():
+
+    data_xmin = run_scenario(
+        pop_size=100, min_crossover_probability=0.6, max_crossover_probability=0.8, id='crossover_min')
+    data_xmax = run_scenario(
+        pop_size=100, min_crossover_probability=0.8, max_crossover_probability=1.0, id='crossover_max')
+
+    data_xmin.to_csv('scenario_crossoverMIN.csv')
+    data_xmax.to_csv('scenario_crossoverMAX.csv')
+
+    fig = plot_scenarios(data_xmin, data_xmax,
+                         'Crossover: [0.6-0.8]', 'Crossover: [0.8-1.0]')
+
+    plt.tight_layout()
+    fig.savefig('scenario_crossover_variation.png')
+
+
+def mutation_results():
+
+    data_xmin = run_scenario(
+        pop_size=100, min_mutation_probability=0.01, max_mutation_probability=0.1, id='mutation_min')
+    data_xmax = run_scenario(
+        pop_size=100, min_mutation_probability=0.1, max_mutation_probability=0.2, id='mutation_max')
+
+    data_xmin.to_csv('scenario_mutationMIN.csv')
+    data_xmax.to_csv('scenario_mutationMAX.csv')
+
+    fig = plot_scenarios(data_xmin, data_xmax,
+                         'Mutação: [0.01-0.1]', 'Mutação: [0.1-0.2]')
+
+    plt.tight_layout()
+    fig.savefig('scenario_mutation_variation.png')
+
+
+def transform_data(i, ga_instance_xovermin, mean_fitness_xmin, best_fitness_xmin):
+    data_min = pd.DataFrame(columns=['idx', 'generation', 'type', 'value'])
+    data_min['idx'] = [i]*(ga_instance_xovermin.num_generations*2)
+    data_min['generation'] = np.array([np.arange(ga_instance_xovermin.num_generations), np.arange(
+        ga_instance_xovermin.num_generations)]).flatten()
+    data_min['type'] = np.array([['Média'] * ga_instance_xovermin.num_generations, [
+        'Melhor'] * ga_instance_xovermin.num_generations]).flatten()
+    data_min['value'] = np.array(
+        [mean_fitness_xmin, best_fitness_xmin]).flatten()
+    return data_min
 
 
 def generate_rastrigin_statistics(pop_size, runs=30, n=10):
@@ -112,5 +230,8 @@ def generate_rastrigin_statistics(pop_size, runs=30, n=10):
 
 
 if __name__ == "__main__":
-    #results = generate_rastrigin_statistics(runs=30, n=10, pop_size=50)
-    pop_size_results()
+    # results = generate_rastrigin_statistics(runs=30, n=10, pop_size=50)
+    # pop_size_results()
+    # crossover_results()
+    # mutation_results()
+    bits_results()

@@ -19,11 +19,17 @@ class GAChromossome:
 
 
 class GA:
-    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, max_feval=10000, crossover_probability=0.8, mutation_probability=0.1, num_bits=20, tournament_candidates=10):
+    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, max_feval=10000, crossover_probability=0.8, min_crossover_probability=0.6, max_crossover_probability=0.8, mutation_probability=0.1, min_mutation_probability=0.01, max_mutation_probability=0.05, num_bits=20, tournament_candidates=10):
         self.population_size = pop_size
         self.num_variables = len(lb)
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
+
+        self.min_crossover_probability = min_crossover_probability
+        self.max_crossover_probability = max_crossover_probability
+        self.min_mutation_probability = min_mutation_probability
+        self.max_mutation_probability = max_mutation_probability
+
         self.lb = lb
         self.ub = ub
         self.num_generations = int(max_feval / pop_size)
@@ -212,7 +218,7 @@ class GA:
 
         return parents
 
-    def tournament_selection(self, fitness, num_parents, num_candidates, with_replacement=True):
+    def tournament_selection(self, fitness, num_parents, num_candidates):
         """
         Selects the parents with tournament selection
         """
@@ -221,20 +227,10 @@ class GA:
         nx = fitness.shape[0]
 
         for parent_num in range(num_parents):
-            tournament_fitness = []
-            tournament_indices = []
 
-            if with_replacement:
-                tournament_indices = np.random.randint(
-                    low=0.0, high=nx, size=num_candidates)
-                tournament_fitness = fitness[tournament_indices]
-            else:
-                rand_indices = np.random.randint(
-                    low=0.0, high=(nx - parent_num), size=num_candidates)
-                indexes_remaining = np.where(range(nx) not in winner_indexes)
-
-                tournament_fitness = fitness[indexes_remaining]
-                tournament_indices = indexes_remaining[rand_indices]
+            tournament_indices = np.random.randint(
+                low=0.0, high=nx, size=num_candidates)
+            tournament_fitness = fitness[tournament_indices]
 
             winner_index = tournament_indices[np.argsort(
                 tournament_fitness)[-1]]
@@ -375,13 +371,7 @@ class GA:
         return (1 - fitness)/fitness
 
     def get_mutation_probability(self, generation):
-        #mutations = np.linspace(0.1, 0.001, num=self.num_generations)
-        # return mutations[generation]
-        return self.mutation_probability
-        # return 0.1 - 0.001 * generation / self.num_generations
+        return self.min_mutation_probability - (self.max_mutation_probability - self.min_mutation_probability) * generation/self.num_generations
 
     def get_crossover_probability(self, generation):
-        #crossovers = np.linspace(0.6, 1.0, num=self.num_generations)
-        # return crossovers[generation]
-        return self.crossover_probability
-        # return 0.7 - 0.001 * generation / self.num_generations
+        return self.min_crossover_probability + (self.max_crossover_probability - self.min_crossover_probability) * generation/self.num_generations
