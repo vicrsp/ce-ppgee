@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 import random
+import pandas as pd
 
 
 class GAPermutation:
@@ -21,6 +22,23 @@ class GAPermutation:
         self.best_objective = np.Infinity
         self.best_solution = []
         self.best_fitness = 0
+        self.converged = False
+
+    def save_results(self, test_id):
+        pd.DataFrame(self.best_solution).to_csv(
+            'data/best_solution_{}.csv'.format(test_id), index=False)
+
+        pd.DataFrame([self.best_objective]).to_csv(
+            'data/best_objective_{}.csv'.format(test_id), index=False)
+
+        pd.DataFrame(self.population_fitness).to_csv(
+            'data/last_population_fitness_{}.csv'.format(test_id), index=False)
+
+        pd.DataFrame(self.generation_fitness).to_csv(
+            'data/generation_fitness_{}.csv'.format(test_id), index=False)
+
+        pd.DataFrame(self.best_solutions_fitness).to_csv(
+            'data/best_solutions_fitness_{}.csv'.format(test_id), index=False)
 
     def initialize_population(self):
         """
@@ -56,7 +74,7 @@ class GAPermutation:
 
         return pop_fitness
 
-    def run(self, debug=True):
+    def run(self, debug=False):
         print('Starting GAPermutation...')
         self.initialize_population()
 
@@ -75,6 +93,7 @@ class GAPermutation:
 
             if self.descale(self.best_fitness) == 0:
                 print('Optimal solution found...')
+                self.converged = True
                 break
 
             # Selecting the best parents in the population for mating.
@@ -140,6 +159,35 @@ class GAPermutation:
 
         return parents, parents_fitness
 
+    def stochastic_universal_sampling_selection(self, fitness, num_parents):
+        """
+        Selects the parents using SUS selection technique.
+        """
+        sorted_parents = self.population[np.flip(np.argsort(fitness))]
+        sorted_fitness = fitness[np.flip(np.argsort(fitness))]
+
+        fitness_sum = np.sum(fitness)
+
+        distance = fitness_sum / float(num_parents)
+        start = random.uniform(0, distance)
+        points = [start + i*distance for i in range(num_parents)]
+
+        parents = np.empty((num_parents, self.max_int))
+        parents_fitness = np.empty(num_parents)
+
+        parent_num = 0
+        for p in points:
+            idx = 0
+            r = sorted_fitness[idx]
+            while r < p:
+                idx = idx + 1
+                r = r + sorted_fitness[idx]
+
+            parents[parent_num, :] = sorted_parents[idx, :]
+            parents_fitness[parent_num] = sorted_fitness[idx]
+            parent_num = parent_num + 1
+        return parents, parents_fitness
+
     def roulette_selection(self, fitness, num_parents):
         """
         Selects the parents using the roulette wheel selection technique.
@@ -167,8 +215,8 @@ class GAPermutation:
     def selection(self, fitness, num_tournament):
         parents = np.zeros((2, self.max_int))
 
-        parent_selection, parent_fitness = self.tournament_selection(
-            fitness, self.population_size, int(0.8 * self.population_size))
+        parent_selection, parent_fitness = self.stochastic_universal_sampling_selection(
+            fitness, 2)
 
         sort_indexes = np.argsort(parent_fitness)
         best = parent_selection[sort_indexes[-1], :]
@@ -187,41 +235,6 @@ class GAPermutation:
         sort_indexes = np.argsort(pop_fitness)
         sorted_pop = merged_pop[sort_indexes]
         return sorted_pop[2:, :]
-
-    def cut_and_crossfill_crossover(self, parents):
-        """
-        Applies CutAndCrossfill_Crossover.m. parents: array(2,N) => [parent1; parent2]
-        """
-        N = parents.shape[1]
-        offspring = np.zeros((2, N))
-        # single point crossover
-        pos = int(np.floor(N*np.random.rand()))
-        offspring[0, :pos] = parents[0, :pos]
-        offspring[1, :pos] = parents[1, :pos]
-        s1 = pos
-        s2 = pos
-
-        # if pos = N-1, no crossover happened
-        if s1 < N:
-            for i in range(N):
-                check1 = 0
-                check2 = 0
-                for j in range(pos):
-                    if (parents[1, i] == offspring[0, j]):
-                        check1 = 1
-
-                    if (parents[0, i] == offspring[1, j]):
-                        check2 = 1
-
-                if check1 == 0:
-                    offspring[0, s1] = parents[1, i]
-                    s1 = s1 + 1
-
-                if check2 == 0:
-                    offspring[1, s2] = parents[0, i]
-                    s2 = s2 + 1
-
-        return offspring
 
     def mutation(self, offsprings):
         m, n = offsprings.shape
