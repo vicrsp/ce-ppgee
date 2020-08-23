@@ -19,7 +19,7 @@ class GAChromossome:
 
 
 class GA:
-    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, max_feval=10000, crossover_probability=0.8, min_crossover_probability=0.6, max_crossover_probability=0.8, mutation_probability=0.1, min_mutation_probability=0.01, max_mutation_probability=0.05, num_bits=20, tournament_candidates=10):
+    def __init__(self, lb, ub, fitness_func, pop_size=10, num_generations=10, max_feval=10000, crossover_probability=0.8, min_crossover_probability=0.6, max_crossover_probability=0.8, mutation_probability=0.1, min_mutation_probability=0.01, max_mutation_probability=0.05, num_bits=20, tournament_candidates=10, linear_scaling=False):
         self.population_size = pop_size
         self.num_variables = len(lb)
         self.crossover_probability = crossover_probability
@@ -29,6 +29,8 @@ class GA:
         self.max_crossover_probability = max_crossover_probability
         self.min_mutation_probability = min_mutation_probability
         self.max_mutation_probability = max_mutation_probability
+
+        self.linear_scaling = linear_scaling
 
         self.lb = lb
         self.ub = ub
@@ -42,11 +44,13 @@ class GA:
                           )/(np.exp2(self.num_bits) - 1)
         self.best_solutions_fitness = []
         self.generation_fitness = []
+        self.generation_fobj = []
         self.generation_solutions = {}
         self.generation_parents = {}
         self.generation_offspring_mutated = {}
         self.generation_offspring_crossover = {}
 
+        self.K_scaling = 1.5
         self.x_tol = 10 ** -6
         self.fitness_tol = 10 ** -6
         self.fitness_eval = 0
@@ -94,6 +98,9 @@ class GA:
 
         pop_fitness = np.array(pop_fitness)
 
+        if(self.linear_scaling):
+            pop_fitness = self.apply_linear_scale(pop_fitness)
+
         self.fitness_eval = self.fitness_eval + pop_fitness.shape[0]
         self.population_fitness = pop_fitness
         return pop_fitness
@@ -138,11 +145,14 @@ class GA:
             self.generation_parents[generation] = parents
             self.generation_solutions[generation] = self.population
             self.generation_fitness.append(fitness)
+            self.generation_fobj.append([self.remove_linear_scale(self.descale(
+                x)) if self.linear_scaling else self.descale(x) for x in fitness])
             self.best_solutions_fitness.append(np.max(fitness))
             self.generation_offspring_mutated[generation] = offspring_mutated
             self.generation_offspring_crossover[generation] = offspring_crossover
 
-        self.best_objective = self.descale(self.best_fitness)
+        self.best_objective = self.remove_linear_scale(self.descale(
+            self.best_fitness)) if self.linear_scaling else self.descale(self.best_fitness)
 
         print('Finishing GA...')
 
@@ -313,11 +323,41 @@ class GA:
         """
         return 1/(fx + self.scale_factor)
 
-    def linear_scale(self, fitness):
-        return fitness
-
     def descale(self, fitness):
+        if(fitness == 0):
+            return np.nan
+
         return (1 - fitness)/fitness
+
+    def apply_linear_scale(self, fitness):
+        mean_fitness = np.mean(fitness)
+        max_fitness = np.max(fitness)
+
+        if(mean_fitness == max_fitness):  # no linear scaling is necessary
+            return fitness
+
+        a, b = self.get_scaling_factors(
+            mean_fitness, max_fitness, self.K_scaling)
+
+        return np.maximum(np.zeros_like(fitness), fitness * a + b)
+
+    def get_scaling_factors(self, mean_fitness, max_fitness, K):
+        a = (K-1)*mean_fitness / (max_fitness - mean_fitness)
+        b = (1 - a) * mean_fitness
+
+        return a, b
+
+    def remove_linear_scale(self, fitness):
+        mean_fitness = np.mean(self.population_fitness)
+        max_fitness = np.max(self.population_fitness)
+
+        if(mean_fitness == max_fitness):  # no linear scaling is necessary
+            return fitness
+
+        a, b = self.get_scaling_factors(
+            mean_fitness, max_fitness, self.K_scaling)
+
+        return (fitness - b)/a
 
     def get_mutation_probability(self, generation):
         return self.min_mutation_probability - (self.max_mutation_probability - self.min_mutation_probability) * generation/self.num_generations

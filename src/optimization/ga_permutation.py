@@ -5,13 +5,14 @@ import pandas as pd
 
 
 class GAPermutation:
-    def __init__(self, fitness_func, pop_size=10, num_generations=100, max_int=8, crossover_probability=0.6, mutation_probability=0.05):
+    def __init__(self, fitness_func, pop_size=10, num_generations=100, max_int=8, crossover_probability=0.6, mutation_probability=0.05, use_inversion_mutation=False):
         self.population_size = pop_size
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
         self.num_generations = num_generations
         self.fitness_func = fitness_func
         self.max_int = max_int
+        self.use_inversion_mutation = use_inversion_mutation
 
         self.best_solutions_fitness = []
         self.generation_fitness = []
@@ -236,7 +237,27 @@ class GAPermutation:
         sorted_pop = merged_pop[sort_indexes]
         return sorted_pop[2:, :]
 
+    def inversion_mutation(self, offsprings):
+        m, n = offsprings.shape
+        mutated = np.zeros(offsprings.shape)
+        for i in range(m):
+            prob = np.random.rand()
+            mutated[i, :] = offsprings[i, :]
+            if prob < self.get_mutation_probability():
+                pos_1, pos_2 = np.sort(
+                    np.random.randint(low=0, high=n, size=2))
+                flipped_array = np.flip(offsprings[i, pos_1:pos_2])
+                mutated[i, pos_1:pos_2] = flipped_array
+
+        return mutated
+
     def mutation(self, offsprings):
+        if(self.use_inversion_mutation):
+            return self.inversion_mutation(offsprings)
+        else:
+            return self.swap_mutation(offsprings)
+
+    def swap_mutation(self, offsprings):
         m, n = offsprings.shape
 
         mutated = np.zeros(offsprings.shape)

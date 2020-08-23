@@ -45,7 +45,7 @@ def pop_size_results():
     fig.savefig('queens_scenario_pop_variation.png')
 
 
-def run_scenario(n=8, runs=30, pop_size=100, crossover_probability=0.6, mutation_probability=0.1, id=''):
+def run_scenario(n=8, runs=30, pop_size=100, crossover_probability=0.6, mutation_probability=0.1, use_inversion_mutation=True, id=''):
     m = NQueens(n)
 
     data = pd.DataFrame(
@@ -54,8 +54,8 @@ def run_scenario(n=8, runs=30, pop_size=100, crossover_probability=0.6, mutation
     converge_count = 0
 
     for i in range(runs):
-        ga_instance = GAPermutation(m.f, pop_size=pop_size, num_generations=300,
-                                    mutation_probability=mutation_probability, crossover_probability=crossover_probability)
+        ga_instance = GAPermutation(m.f, pop_size=pop_size, num_generations=300, mutation_probability=mutation_probability,
+                                    crossover_probability=crossover_probability, use_inversion_mutation=use_inversion_mutation)
         ga_instance.run()
 
         mean_fitness = [ga_instance.descale(np.mean(v))
@@ -108,6 +108,23 @@ def mutation_results():
     fig.savefig('queens_scenario_mutation_variation.png')
 
 
+def mutation_results_inversion():
+
+    data_xmin = run_scenario(
+        pop_size=100)
+    data_xmax = run_scenario(
+        pop_size=100, use_inversion_mutation=True)
+
+    data_xmin.to_csv('data/queens_scenario_mutationSwap.csv')
+    data_xmax.to_csv('data/queens_scenario_mutationInversion.csv')
+
+    fig = plot_scenarios(data_xmin, data_xmax,
+                         'Swap Mutation', 'Inversion Mutation')
+
+    plt.tight_layout()
+    fig.savefig('queens_scenario_mutation_inversion.png')
+
+
 def transform_data(i, ga_instance_xovermin, mean_fitness_xmin, best_fitness_xmin):
     data_min = pd.DataFrame(columns=['idx', 'generation', 'type', 'value'])
     n = len(mean_fitness_xmin)
@@ -123,16 +140,17 @@ if __name__ == "__main__":
     # pop_size_results()
     # crossover_results()
     # mutation_results()
+    mutation_results_inversion()
 
-    datamin = pd.read_csv('data/queens_scenario_mutationMIN.csv')
-    datamax = pd.read_csv('data/queens_scenario_mutationMAX.csv')
+    # datamin = pd.read_csv('data/queens_scenario_mutationMIN.csv')
+    # datamax = pd.read_csv('data/queens_scenario_mutationMAX.csv')
 
-    sns.lineplot(x="generation", y="value",
-                 data=datamin[datamin['type'] == 'Média'])
-    sns.lineplot(x="generation", y="value",
-                 data=datamax[datamax['type'] == 'Média'])
-    plt.legend(['Mutação: 0.001', 'Mutação: 0.2'])
-    plt.tight_layout()
-    plt.xlabel('Geração')
-    plt.ylabel('Função objetivo')
-    plt.savefig('queens_scenario_mutation_variation_average.png')
+    # sns.lineplot(x="generation", y="value",
+    #              data=datamin[datamin['type'] == 'Média'])
+    # sns.lineplot(x="generation", y="value",
+    #              data=datamax[datamax['type'] == 'Média'])
+    # plt.legend(['Mutação: 0.001', 'Mutação: 0.2'])
+    # plt.tight_layout()
+    # plt.xlabel('Geração')
+    # plt.ylabel('Função objetivo')
+    # plt.savefig('queens_scenario_mutation_variation_average.png')

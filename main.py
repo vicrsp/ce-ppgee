@@ -69,8 +69,8 @@ def data_for_contour_plot(lb, ub, fitness):
 
 
 def plot_execution_summary(ga_results):
-    mean_fitness = [log(1 / np.mean(v)) for v in ga_results.generation_fitness]
-    best_fitness = [log(1 / np.max(v)) for v in ga_results.generation_fitness]
+    mean_fitness = [np.nanmean(v) for v in ga_results.generation_fobj]
+    best_fitness = [np.nanmin(v) for v in ga_results.generation_fobj]
 
     fig, ax = plt.subplots()
     ax.plot(mean_fitness, 'b.')
@@ -110,7 +110,7 @@ def run_queens():
     """
     m = NQueens()
     ga_instance = GAPermutation(m.f,
-                                num_generations=500, mutation_probability=0.1, pop_size=100, crossover_probability=0.8)
+                                num_generations=500, mutation_probability=0.1, pop_size=100, crossover_probability=0.8, use_inversion_mutation=True)
     ga_instance.run()
     nqueens_plot(ga_instance)
 
@@ -133,10 +133,10 @@ def run_rastrigin(n=10):
     """
     m = Rastrigin(n)
     ga_instance = GA([-5.12]*n, [5.12]*n, m.f,
-                     num_generations=1000, mutation_probability=0.05, pop_size=50, crossover_probability=0.8, num_bits=16)
+                     num_generations=1000, pop_size=100, linear_scaling=True)
     ga_instance.run()
 
-    ga_instance.save_results('teste')
+    # ga_instance.save_results('teste')
 
     plot_execution_summary(ga_instance)
 
