@@ -78,8 +78,10 @@ def run_scenario(n=8, runs=30, pop_size=100, crossover_probability=0.6, mutation
 
 def crossover_results():
 
-    data_xmin = run_scenario(pop_size=100, crossover_probability=0.3)
-    data_xmax = run_scenario(pop_size=100, crossover_probability=0.9)
+    data_xmin = run_scenario(
+        pop_size=100, crossover_probability=0.3, mutation_probability=0.0)
+    data_xmax = run_scenario(
+        pop_size=100, crossover_probability=0.9, mutation_probability=0.0)
 
     data_xmin.to_csv('data/queens_scenario_crossoverMIN.csv')
     data_xmax.to_csv('data/queens_scenario_crossoverMAX.csv')
@@ -88,15 +90,15 @@ def crossover_results():
                          'Crossover: 0.3', 'Crossover: 0.9')
 
     plt.tight_layout()
-    fig.savefig('queens_scenario_crossover_variation.png')
+    fig.savefig('queens_scenario_crossover_variation_v2.png')
 
 
 def mutation_results():
 
     data_xmin = run_scenario(
-        pop_size=100, mutation_probability=0.01)
+        pop_size=100, mutation_probability=0.01, crossover_probability=0.0)
     data_xmax = run_scenario(
-        pop_size=100, mutation_probability=0.2)
+        pop_size=100, mutation_probability=0.2, crossover_probability=0.0)
 
     data_xmin.to_csv('data/queens_scenario_mutationMIN.csv')
     data_xmax.to_csv('data/queens_scenario_mutationMAX.csv')
@@ -105,7 +107,7 @@ def mutation_results():
                          'Mutação: 0.001', 'Mutação: 0.2')
 
     plt.tight_layout()
-    fig.savefig('queens_scenario_mutation_variation.png')
+    fig.savefig('queens_scenario_mutation_variation_v2.png')
 
 
 def mutation_results_inversion():
@@ -138,9 +140,9 @@ def transform_data(i, ga_instance_xovermin, mean_fitness_xmin, best_fitness_xmin
 
 if __name__ == "__main__":
     # pop_size_results()
-    # crossover_results()
-    # mutation_results()
-    mutation_results_inversion()
+    crossover_results()
+    mutation_results()
+    # mutation_results_inversion()
 
     # datamin = pd.read_csv('data/queens_scenario_mutationMIN.csv')
     # datamax = pd.read_csv('data/queens_scenario_mutationMAX.csv')

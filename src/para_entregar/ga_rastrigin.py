@@ -1,21 +1,7 @@
+from math import factorial
 import numpy as np
 import itertools
 import random
-import pandas as pd
-from math import factorial
-
-
-class GAChromossome:
-    def __init__(self, fitness, value=[], generation=0):
-        self.value = value
-        self.generation = generation
-        self.fitness = fitness
-
-    def setValue(self, value):
-        self.value = value
-
-    def setFitness(self, fitness):
-        self.fitness = fitness
 
 
 class GA:
@@ -42,38 +28,13 @@ class GA:
 
         self.precision = (np.array(self.ub) - np.array(self.lb)
                           )/(np.exp2(self.num_bits) - 1)
-        self.best_solutions_fitness = []
-        self.generation_fitness = []
-        self.generation_fobj = []
-        self.generation_solutions = {}
-        self.generation_parents = {}
-        self.generation_offspring_mutated = {}
-        self.generation_offspring_crossover = {}
 
         self.K_scaling = 1.5
-        self.x_tol = 10 ** -6
-        self.fitness_tol = 10 ** -6
         self.fitness_eval = 0
         self.scale_factor = 1
         self.best_objective = np.Infinity
         self.best_solution = []
         self.best_fitness = 0
-
-    def save_results(self, test_id):
-        pd.DataFrame(self.best_solution).to_csv(
-            'best_solution_{}.csv'.format(test_id), index=False)
-
-        pd.DataFrame([self.best_objective]).to_csv(
-            'best_objective_{}.csv'.format(test_id), index=False)
-
-        pd.DataFrame(self.population_fitness).to_csv(
-            'last_population_fitness_{}.csv'.format(test_id), index=False)
-
-        pd.DataFrame(self.generation_fitness).to_csv(
-            'generation_fitness_{}.csv'.format(test_id), index=False)
-
-        pd.DataFrame(self.best_solutions_fitness).to_csv(
-            'best_solutions_fitness_{}.csv'.format(test_id), index=False)
 
     def initialize_population(self):
         """
@@ -106,7 +67,6 @@ class GA:
         return pop_fitness
 
     def run(self, debug=False):
-        print('Starting GA...')
         self.initialize_population()
 
         for generation in range(self.num_generations):
@@ -141,20 +101,8 @@ class GA:
             # Using generational approach, so population is the offspring only
             self.population = self.decode(offspring_mutated)
 
-            # Store GA progress data
-            self.generation_parents[generation] = parents
-            self.generation_solutions[generation] = self.population
-            self.generation_fitness.append(fitness)
-            self.generation_fobj.append([self.remove_linear_scale(self.descale(
-                x)) if self.linear_scaling else self.descale(x) for x in fitness])
-            self.best_solutions_fitness.append(np.max(fitness))
-            self.generation_offspring_mutated[generation] = offspring_mutated
-            self.generation_offspring_crossover[generation] = offspring_crossover
-
         self.best_objective = self.remove_linear_scale(self.descale(
             self.best_fitness)) if self.linear_scaling else self.descale(self.best_fitness)
-
-        print('Finishing GA...')
 
     def roulette_selection(self, fitness, num_parents):
         """
@@ -234,28 +182,6 @@ class GA:
             offspring[:, var_index] = np.array(offspring_list)
 
         return offspring
-
-    def flip_bit_mutation_per_individual(self, offsprings, generation):
-        num_offsprings = offsprings.shape[0]
-        pm = self.get_mutation_probability(generation)
-        for i in range(num_offsprings):
-            for var_index in range(self.num_variables):
-                prob = np.random.random()
-                if prob < pm:
-                    bits_to_flip = np.ceil(pm * self.num_bits)
-                    rand_indexes = np.random.randint(
-                        low=0, high=self.num_bits, size=int(bits_to_flip))
-
-                    variable = str(offsprings[i, var_index])
-                    for k in rand_indexes:
-                        chromosome = bool(int(variable[k]))
-                        mutated = not chromosome
-                        variable = variable[:k] + str(int(mutated)) + (
-                            variable[(k+1):] if k < (self.num_bits-1) else '')
-
-                    offsprings[i, var_index] = variable
-
-        return offsprings
 
     def flip_bit_mutation_per_bit(self, offsprings, generation):
         num_offsprings = offsprings.shape[0]

@@ -87,7 +87,7 @@ def pop_size_results():
 
     #data_pop200 = pd.read_csv('scenario_pop_200.csv')
     # data_pop100 = run_scenario(pop_size=200, id='pop_10')
-    data_pop10 = run_scenario(pop_size=10, id='pop_100')
+    data_pop10 = run_scenario(pop_size=10, id='pop_10')
     data_pop200 = run_scenario(pop_size=200, id='pop_200')
 
     # data_pop10 = pd.read_csv('data/scenario_pop10.csv')
@@ -114,7 +114,7 @@ def bits_results():
                          'L = 10', 'L = 30')
 
     plt.tight_layout()
-    fig.savefig('scenario_bits_variation.png')
+    fig.savefig('scenario_bits_variation_v2.png')
 
 
 def linear_scaling_results():
@@ -130,7 +130,7 @@ def linear_scaling_results():
                          'Com escala linear', 'Sem escala linear')
 
     plt.tight_layout()
-    fig.savefig('scenario_linear_scaling.png')
+    fig.savefig('scenario_linear_scaling_v2.png')
 
 
 def run_scenario(n=10, runs=30, pop_size=100, num_bits=20, min_crossover_probability=0.6, max_crossover_probability=0.9, min_mutation_probability=0.01, max_mutation_probability=0.05, linear_scaling=False, id=''):
@@ -151,7 +151,7 @@ def run_scenario(n=10, runs=30, pop_size=100, num_bits=20, min_crossover_probabi
         data_instance = transform_data(i, ga_instance,
                                        mean_fitness, best_fitness)
 
-        ga_instance.save_results('scenarion_{}_{}'.format(id, i))
+        ga_instance.save_results('scenario_{}_{}'.format(id, i))
 
         data = data.append(data_instance, ignore_index=True)
 
@@ -161,35 +161,35 @@ def run_scenario(n=10, runs=30, pop_size=100, num_bits=20, min_crossover_probabi
 def crossover_results():
 
     data_xmin = run_scenario(
-        pop_size=100, min_crossover_probability=0.6, max_crossover_probability=0.8, id='crossover_min')
+        pop_size=100, min_crossover_probability=0.6, max_crossover_probability=0.8, min_mutation_probability=0.0, max_mutation_probability=0.0, id='crossover_min')
     data_xmax = run_scenario(
-        pop_size=100, min_crossover_probability=0.8, max_crossover_probability=1.0, id='crossover_max')
+        pop_size=100, min_crossover_probability=0.8, max_crossover_probability=1.0, min_mutation_probability=0.0, max_mutation_probability=0.0, id='crossover_max')
 
-    data_xmin.to_csv('scenario_crossoverMIN.csv')
-    data_xmax.to_csv('scenario_crossoverMAX.csv')
+    data_xmin.to_csv('data/scenario_crossoverMIN.csv')
+    data_xmax.to_csv('data/scenario_crossoverMAX.csv')
 
     fig = plot_scenarios(data_xmin, data_xmax,
                          'Crossover: [0.6-0.8]', 'Crossover: [0.8-1.0]')
 
     plt.tight_layout()
-    fig.savefig('scenario_crossover_variation.png')
+    fig.savefig('scenario_crossover_variation_v2.png')
 
 
 def mutation_results():
 
     data_xmin = run_scenario(
-        pop_size=100, min_mutation_probability=0.01, max_mutation_probability=0.1, id='mutation_min')
+        pop_size=100, min_crossover_probability=0.0, max_crossover_probability=0.0, min_mutation_probability=0.01, max_mutation_probability=0.1, id='mutation_min')
     data_xmax = run_scenario(
-        pop_size=100, min_mutation_probability=0.1, max_mutation_probability=0.2, id='mutation_max')
+        pop_size=100, min_crossover_probability=0.0, max_crossover_probability=0.0, min_mutation_probability=0.1, max_mutation_probability=0.2, id='mutation_max')
 
-    data_xmin.to_csv('scenario_mutationMIN.csv')
-    data_xmax.to_csv('scenario_mutationMAX.csv')
+    data_xmin.to_csv('scenario_mutationMIN_2.csv')
+    data_xmax.to_csv('scenario_mutationMAX_2.csv')
 
     fig = plot_scenarios(data_xmin, data_xmax,
                          'Mutação: [0.01-0.1]', 'Mutação: [0.1-0.2]')
 
     plt.tight_layout()
-    fig.savefig('scenario_mutation_variation.png')
+    fig.savefig('scenario_mutation_variation_v2.png')
 
 
 def transform_data(i, ga_instance_xovermin, mean_fitness_xmin, best_fitness_xmin):
@@ -254,10 +254,10 @@ def generate_rastrigin_statistics(pop_size, runs=30, n=10):
 if __name__ == "__main__":
     # results = generate_rastrigin_statistics(runs=30, n=10, pop_size=50)
     pop_size_results()
-    # crossover_results()
-    # mutation_results()
-    # bits_results()
-    # linear_scaling_results()
+    crossover_results()
+    mutation_results()
+    bits_results()
+    linear_scaling_results()
 
     # data_10 = pd.read_csv('data/scenario_bits10.csv')
     # data_30 = pd.read_csv('data/scenario_bits30.csv')
