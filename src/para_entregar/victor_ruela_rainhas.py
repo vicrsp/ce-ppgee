@@ -2,7 +2,7 @@ from ga_rainhas import GAPermutation
 from queens import NQueens
 
 
-def victor_ruela(nvar):
+def victor_ruela_rainhas(nvar):
     m = NQueens(nvar)
     ga_instance = GAPermutation(m.f, max_int=nvar)
     ga_instance.run()
@@ -10,4 +10,4 @@ def victor_ruela(nvar):
 
 
 if __name__ == "__main__":
-    x, f = victor_ruela(10)
+    x, f = victor_ruela_rainhas(8)
