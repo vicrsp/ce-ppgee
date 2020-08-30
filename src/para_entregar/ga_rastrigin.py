@@ -48,8 +48,6 @@ class GA:
     def cal_pop_fitness(self, population):
         """
         Calculating the fitness values of all solutions in the current population.
-        It returns:
-            -fitness: An array of the calculated fitness values.
         """
         pop_fitness = []
         # Calculating the fitness value of each solution in the current population.
@@ -227,7 +225,6 @@ class GA:
         return decoded
 
     def binary_to_gray(self, b):
-        # return b
         g = ''
         for index in range(len(b)):
             gray_value = b[index] if index == 0 else str(
@@ -236,7 +233,6 @@ class GA:
         return g
 
     def gray_to_binary(self, g):
-        # return g
         b = ''
         for index in range(len(g)):
             bin_value = g[index] if index == 0 else str(
