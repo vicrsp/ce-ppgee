@@ -1,8 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class PSO:
-    def __init__(self, func, lb, ub, topology='best', constrition=1, inertia=1, acceleration=[1, 1], swarm_size=100, max_feval=1000):
+    def __init__(self, func, lb, ub, topology='best', constrition=1, inertia=1, acceleration=[0.01, 0.01], swarm_size=100, max_feval=10000):
         self.max_feval = max_feval
         self.func = func
         self.swarm_size = swarm_size
@@ -17,6 +18,9 @@ class PSO:
         self.fevals = 0
         self.global_best_cost = np.Infinity
         self.local_best_cost = np.Infinity
+        self.iteration_best_cost = []
+        self.iteration_average_cost = []
+        self.iteration_global_best_cost = []
 
     def initialize_swarm(self):
         """
@@ -50,6 +54,12 @@ class PSO:
 
         self.fevals = self.fevals + swarm_cost.shape[0]
         self.swarm_cost = swarm_cost
+
+        # Store iteration data
+        self.iteration_best_cost.append(self.local_best_cost)
+        self.iteration_average_cost.append(np.mean(swarm_cost))
+        self.iteration_global_best_cost.append(self.global_best_cost)
+
         return swarm_cost
 
     def update_particles_velocity(self, swarm):
@@ -83,16 +93,18 @@ class PSO:
             self.evaluate_swarm_cost_function(self.swarm)
             self.update_particles_velocity(self.swarm)
 
-            if(debug):
-                self.report()
-                print('Best local particle: {}'.format(
-                    self.local_best_solution))
-                print('Best local cost: {}'.format(self.local_best_cost))
-
         self.report()
 
     def report(self):
         print('Best global particle: {}'.format(self.global_best_solution))
         print('Best global cost: {}'.format(self.global_best_cost))
+        self.plot_charts()
 
     def plot_charts(self):
+        _, ax = plt.subplots(3, 1)
+        ax[0].plot(self.iteration_best_cost)
+        ax[1].plot(self.iteration_average_cost)
+        ax[2].plot(self.iteration_global_best_cost)
+        # plt.legend([''])
+        plt.tight_layout()
+        plt.show()
