@@ -2,7 +2,7 @@ from ga_rastrigin import GA
 from rastrigin import Rastrigin
 
 
-def victor_ruela(nvar, ncal):
+def victor_ruela_rastrigin(nvar, ncal):
     m = Rastrigin(nvar)
     ga_instance = GA([-5.12]*nvar, [5.12]*nvar, m.f, max_feval=ncal)
     ga_instance.run()
@@ -11,4 +11,4 @@ def victor_ruela(nvar, ncal):
 
 
 if __name__ == "__main__":
-    x, f = victor_ruela(10, 10000)
+    x, f = victor_ruela_rastrigin(10, 10000)
