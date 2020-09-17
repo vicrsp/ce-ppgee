@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class PSO:
-    def __init__(self, func, lb, ub, topology='best', constrition=1, inertia=1, acceleration=[0.01, 0.01], swarm_size=100, max_feval=10000):
+    def __init__(self, func, lb, ub, topology='gbest', constrition=1, inertia=1, acceleration=[0.01, 0.01], swarm_size=100, max_feval=10000):
         self.max_feval = max_feval
         self.func = func
         self.swarm_size = swarm_size
@@ -17,8 +17,10 @@ class PSO:
 
         self.fevals = 0
         self.global_best_cost = np.Infinity
-        self.local_best_cost = np.Infinity
-        self.iteration_best_cost = []
+        self.personal_best_cost = np.ones(self.swarm_size) * np.Infinity
+        self.personal_best_solution = np.zeros(
+            (self.swarm_size, self.num_variables))
+        self.iteration_personal_best_cost = []
         self.iteration_average_cost = []
         self.iteration_global_best_cost = []
 
@@ -35,8 +37,7 @@ class PSO:
         Calculating the cost values of all solutions in the current swarm.
         """
         swarm_cost = []
-        self.local_best_cost = np.Infinity
-        for sol in swarm:
+        for index, sol in enumerate(swarm):
             cost = self.func(sol)
             swarm_cost.append(cost)
 
@@ -45,10 +46,10 @@ class PSO:
                 self.global_best_cost = cost
                 self.global_best_solution = sol
 
-            # Update local best cost
-            if(cost < self.local_best_cost):
-                self.local_best_cost = cost
-                self.local_best_solution = sol
+            # Update the personal best position
+            if(cost < self.personal_best_cost[index]):
+                self.personal_best_cost[index] = cost
+                self.personal_best_solution[index, :] = sol
 
         swarm_cost = np.array(swarm_cost)
 
@@ -56,24 +57,54 @@ class PSO:
         self.swarm_cost = swarm_cost
 
         # Store iteration data
-        self.iteration_best_cost.append(self.local_best_cost)
+        self.iteration_personal_best_cost.append(self.personal_best_cost)
         self.iteration_average_cost.append(np.mean(swarm_cost))
         self.iteration_global_best_cost.append(self.global_best_cost)
 
         return swarm_cost
 
-    def update_particles_velocity(self, swarm):
+    def get_social_component_solution(self, swarm, swarm_cost):
+        if(self.topology == 'gbest'):
+            return np.array([self.global_best_solution] * self.swarm_size)
+        elif(self.topology == 'lbest'):
+            solution = np.zeros_like(swarm)
+            for i in range(self.swarm_size):
+                if(i == 0):
+                    neighbors = np.hstack((swarm[-1, :], swarm[1, :]))
+                    neighbors_cost = np.hstack((swarm_cost[-1], swarm[1]))
+                    best_neighbor = np.argmin(neighbors_cost)
+                elif(i == (self.swarm_size - 1)):
+                    neighbors = np.hstack((swarm[-2, :], swarm[0, :]))
+                    neighbors_cost = np.hstack((swarm_cost[-2], swarm[0]))
+                    best_neighbor = np.argmin(neighbors_cost)
+                else:
+                    neighbors = np.hstack((swarm[i-1, :], swarm[i+1, :]))
+                    neighbors_cost = np.hstack((swarm_cost[i-1], swarm[i+1]))
+                    best_neighbor = np.argmin(neighbors_cost)
+
+                solution[i, :] = neighbors[best_neighbor]
+
+                # if(neighbors_cost[best_neighbor] < swarm_cost[i]):
+                #     solution[i, :] = neighbors[best_neighbor]
+                # else:
+                #     solution[i, :] = swarm[i]
+            return solution
+
+    def update_particles_velocity(self, swarm, swarm_cost):
         updated_velocities = []
         updated_swarm = []
+
+        social_best_sol = self.get_social_component_solution(swarm, swarm_cost)
+
         for i, particle in enumerate(swarm):
             r1 = np.random.random(size=self.num_variables)
             r2 = np.random.random(size=self.num_variables)
 
             cognitive_component = self.c1 * r1 * \
-                (self.local_best_solution - particle)
+                (self.personal_best_solution[i, :] - particle)
 
             social_component = self.c2 * r2 * \
-                (self.global_best_solution - particle)
+                (social_best_sol[i, :] - particle)
 
             velocity = self.w * self.swarm_velocity[i, :] + \
                 cognitive_component + social_component
@@ -91,18 +122,18 @@ class PSO:
         while(self.fevals < self.max_feval):
             # Calculating the cost of each particle in the swarm.
             self.evaluate_swarm_cost_function(self.swarm)
-            self.update_particles_velocity(self.swarm)
+            self.update_particles_velocity(self.swarm, self.swarm_cost)
 
         self.report()
 
     def report(self):
         print('Best global particle: {}'.format(self.global_best_solution))
         print('Best global cost: {}'.format(self.global_best_cost))
-        self.plot_charts()
+        # self.plot_charts()
 
     def plot_charts(self):
         _, ax = plt.subplots(3, 1)
-        ax[0].plot(self.iteration_best_cost)
+        ax[0].plot(self.iteration_personal_best_cost)
         ax[1].plot(self.iteration_average_cost)
         ax[2].plot(self.iteration_global_best_cost)
         # plt.legend([''])
