@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class PSO:
-    def __init__(self, func, lb, ub, topology='gbest', constrition=1, inertia=1, acceleration=[0.01, 0.01], swarm_size=100, max_feval=10000):
+    def __init__(self, func, lb, ub, max_feval=10000, swarm_size=100, acceleration=[0.01, 0.01], constrition=1, inertia=1, topology='gbest'):
         self.max_feval = max_feval
         self.func = func
         self.swarm_size = swarm_size
@@ -125,6 +125,8 @@ class PSO:
             self.update_particles_velocity(self.swarm, self.swarm_cost)
 
         self.report()
+
+        return self.global_best_solution, self.global_best_cost
 
     def report(self):
         print('Best global particle: {}'.format(self.global_best_solution))
