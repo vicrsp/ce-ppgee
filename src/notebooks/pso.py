@@ -110,7 +110,6 @@ class PSO:
 
         self.swarm_velocity = np.array(updated_velocities)
         self.swarm = np.array(updated_swarm)
-        self.f_tol = np.abs(np.mean(self.swarm_velocity))
 
     def validate_boundaries(self, swarm):
         for index, particle in enumerate(swarm):
