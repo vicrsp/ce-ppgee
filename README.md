@@ -13,6 +13,8 @@ Neste trabalho foi feito o estudo da aplicação de algoritmos genéticos para o
 
 ## Trabalho 2 - PSO (Particle Swarm Optimization)
 ### Relatório
+https://github.com/vicrsp/ce-ppgee/blob/master/src/tp2/tp2_pso.html
+### Notebook
 https://github.com/vicrsp/ce-ppgee/blob/master/src/notebooks/tp2_pso.ipynb
 
 Neste trabalho foi feita a implementação do algoritmo PSO e aplicou-se o algoritmo a uma função de benchmark unimodal e multimodal disponível na literatura. O efeito dos hiperparâmetros tamanho da população, coeficientes de aceleração, constrição e peso de inércia foram avaliados sobre estas duas funções.
