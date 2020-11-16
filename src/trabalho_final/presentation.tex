@@ -1,0 +1,631 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage[version=4]{mhchem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Computação Evolucionária 2020/1]{Estudo do algoritmo Differential Evolution aplicado a sistemas de otimização em tempo-real} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Victor Ruela} % Your name
+\institute[PPGEE - UFMG] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Programa de Pós-Graduação em Engenharia Elétrica\\ Universidade Federal de Minas Gerais \\ % Your institution for the title page
+\medskip
+\textit{victorspruela@ufmg.br} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+\begin{frame}
+\frametitle{Agenda} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{Introdução} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+%\subsection{Sistemas de otimização em tempo-real} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
+
+\begin{frame}
+	\frametitle{Motivação}
+	\begin{itemize}
+		\item A otimização de processos é tipicamente feita sobre modelos matemáticos do processo, os quais são utilizados para determinar o seu ponto de operação ótimo
+		\item Entretanto, em situações práticas é muito difícil encontrar um modelo preciso do processo com um esforço acessível \cite{chachuat2009}
+		\item Portanto, é necessário realizar a otimização usando um modelo com incertezas, o que pode levar à determinação de pontos de operação sub-ótimos ou até infactíveis
+		\item Além disso, a escolha de um algoritmo de otimização inadequado pode piorar ainda mais esse cenário  \cite{quelhas2013}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Sistemas RTO}
+	\begin{itemize}
+		\item Quando medições do processo estão disponíveis, uma das técnicas lidar com as incertezas é a otimização em tempo-real (RTO)
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{rto_blocks.png}
+		\caption{Elementos de um sistema de otimização em tempo-real}
+		\label{fig:rtoOverview}
+	\end{figure}
+	\begin{itemize}
+		\item Uma abordagem intuitiva é ajustar os parâmetros do modelo
+	\end{itemize}
+	
+\end{frame}
+
+\begin{frame}
+	\frametitle{Objetivo}
+	\begin{itemize}
+		\item Algoritmos exatos estão sujeitos à ficarem presos em mínimos locais, logo abordagens estocásticas podem melhorar esse cenário
+		\item Entretanto, o quão varíavel seria a resposta do sistema RTO para algoritmos estocásticos?
+		\item Portanto, o objetivo deste trabalho é estudar a aplicação de variações do algoritmo DE em um sistema RTO utilizando a abordagem por adaptação de parâmetros
+	\end{itemize}
+\end{frame}
+
+
+%\section{Definição do Problema}
+%\begin{frame}
+%	\frametitle{Definição do Problema}
+%	
+%	\begin{block}{Problema de otimização da planta}
+%	\begin{equation}
+%	\begin{alignedat}{2}
+%		\underset{u}{\text{minimizar}} & \quad \phi(u, y_p(u))  \\
+%		\text{sujeito a:} & \quad g_i(u, y_p(u)) \leq 0, \quad \forall i = 1,\dots,n_g\\
+%		& \quad u^{min} \leq u \leq u^{max}
+%	\end{alignedat}
+%	\label{eq:rto_static}
+%\end{equation}
+%
+%	\end{block}
+%	$\phi \in \mathbf{R}$ é um indicador de desempenho da planta, $g_i \in \mathbf{R}^{n_g}$ as restrições de inequalidade, $y_p \in \mathbf{R}^{n_y}$ as saídas medidas do processo e $u \in \mathbf{R}^{n_u}$ representa o conjunto de sinais de controle, os quais possuem valores dentro do intervalo $[u^{min},u^{max}]$.
+%
+%\end{frame}	
+
+
+%\begin{frame}
+%	\frametitle{Definição do Problema}
+%
+%	\begin{block}{Problema de otimização baseado em modelos}
+%			\begin{equation}
+%			\begin{alignedat}{2}
+%				\underset{u}{\text{minimizar}} & \quad \phi(u, f(u,\theta))  \\
+%				\text{sujeito a:} & \quad g_i(u, f(u,\theta)) \leq 0, \quad \forall i = 1,\dots,n_g \\
+%				& \quad u^{min} \leq u \leq u^{max}
+%			\end{alignedat}
+%			\label{eq:rto_static_uncertain}
+%		\end{equation}
+%	\end{block}
+%	
+%	\begin{block}{Problema de identificação de parâmetros}
+%			\begin{equation}
+%			\begin{alignedat}{2}
+%				\underset{\theta}{\text{minimizar}} & \quad \sum_{i=1}^{N}  \left[ 1 - \frac{f(u,\theta)_i}{y_{p}(u)_i }  \right] ^2 \\
+%				%	& \quad g_i(u, f(u,\theta)) \leq 0, \quad \forall i = 1,\dots,n_g \\
+%				& \quad \theta^{min} \leq \theta \leq \theta^{max}
+%			\end{alignedat}
+%			\label{eq:rto_static_ident}
+%		\end{equation}
+%		
+%
+%	\end{block}
+%		$\theta$ são os parâmetros ajustáveis do modelo aproximado $f$, e $N$ o número de amostras disponíveis
+%\end{frame}	
+
+%------------------------------------------------
+
+%\begin{frame}
+%\frametitle{Bullet Points}
+%\begin{itemize}
+%\item Lorem ipsum dolor sit amet, consectetur adipiscing elit
+%\item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
+%\item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
+%\item Nam cursus est eget velit posuere pellentesque
+%\item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
+%\end{itemize}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Blocks of Highlighted Text}
+%\begin{block}{Block 1}
+%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+%\end{block}
+%
+%\begin{block}{Block 2}
+%Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
+%\end{block}
+%
+%\begin{block}{Block 3}
+%Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
+%\end{block}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Multiple Columns}
+%\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
+%
+%\column{.45\textwidth} % Left column and width
+%\textbf{Heading}
+%\begin{enumerate}
+%\item Statement
+%\item Explanation
+%\item Example
+%\end{enumerate}
+%
+%\column{.5\textwidth} % Right column and width
+%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+%
+%\end{columns}
+%\end{frame}
+
+%------------------------------------------------
+\section{Metodologia}
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Algoritmo DE}
+	\begin{itemize}
+		\item Variações implementadas: 
+		\begin{table}
+		\begin{tabular}{l | l}
+			\toprule
+			\textbf{Notação} & \textbf{Mutação diferencial}\\
+			\midrule
+			DE/rand/1/bin & $v_{t,i} = x_{t,r_1} + F(x_{t,r_2} - x_{t,r_3})$ \\ & \\
+			DE/mean/1/bin & $v_{t,i} = \frac{1}{N}\sum_{k=1}^{N}x_{t,k} + F(x_{t,r_2} - x_{t,r_3}) $\\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+		\item $\mathnormal{F} \sim \mathcal{U}_{[0.5,1.0]}$
+		\item População inicial amostrada uniformemente
+		\item Normalização das variáveis de decisão para o intervalo $[0,100]$
+		\item Tratamento de restrições de caixa e inequalidade conforme \cite{lampinen2002}
+		\item Tratamento de soluções degeneradas para indíces $r_1$, $r_2$ e $r_3$ \cite{gaspar2002}
+
+	\end{itemize}
+	
+\end{frame}	
+
+\subsection{Algoritmo DE}
+
+\begin{frame}
+\frametitle{Algoritmo DE}
+
+\begin{small}
+	\begin{block}{Restrições de caixa}
+	\begin{equation}
+		\begin{cases}
+			\mathcal{U}_{[0,1]}.(x_i^{max} - x_i^{min}) +x_i^{min}  & \text{, se } x_i < x_i^{min} \vee x_i >  x_i^{max} \\
+			x_i & \text{, c.c }
+		\end{cases}
+	\end{equation}
+	\end{block}
+\end{small}
+\begin{small}
+	\begin{block}{Restrições de inequalidade}
+		Durante a etapa de seleção dos sobreviventes, um indivíduo só poderá ser escolhido se satifazer pelo menos uma das regras a seguir:
+		\begin{itemize}
+			\item É factivel e possui um objetivo menor ou igual que o indivíduo atual
+			\item É factível enquanto que o invíduo atual é infactível
+			\item É infactível, porém viola menos as restrições em relação ao indivíduo atual
+		\end{itemize}
+		
+	\end{block}	
+\end{small}
+
+\end{frame}
+
+\subsection{Desenho do experimento}
+
+\begin{frame}
+	\frametitle{Desenho do experimento}
+	Comparar as variações DE/rand/1/bin e DE/mean/1/bin :
+	\begin{itemize}
+		\item População: 20 indivíduos
+		\item Número máximo de gerações: 100
+		\item Probabilidade de recombinação: 0.5
+		\item Ciclos RTO com 10 iterações
+		\item 30 execuções dos ciclos
+	\end{itemize}
+	\begin{block}{Critérios de comparação}
+		Variabilidade dos sinais de controle e função objetivo em relação ao ótimo da planta, violação de restrições do processo e variabilidade dos parâmetros ajustados
+		\begin{equation}
+			\label{eq:du_perc}
+			\Delta u\% =  \left\|100 \frac{u - u^{opt}}{u^{opt}} \right\|, \quad \Delta \phi \% =  100 \frac{\phi - \phi^{opt}}{\phi^{opt}} 
+		\end{equation}
+	\end{block}
+	
+\end{frame}	
+
+%------------------------------------------------
+\section{Estudo de Caso}
+\subsection{Definição do problema}
+
+\begin{frame}
+	\frametitle{Definição do Problema}
+	Reator semi-batelada descrito em \cite{chachuat2009}:
+	
+    \qquad	\ce{A + B ->[k_1] C} \quad
+	\ce{2B ->[k_2] D} \quad
+	\ce{B ->[k_3] E} \quad
+	\ce{C + B ->[k_4] F} \quad
+	
+	\begin{block}{Modelo do processo}
+	\begin{small}
+		\begin{eqnarray}
+			\label{eq:models}	\frac{dc_A}{dt} = -k_1c_Ac_B - \frac{F}{V}c_A \\
+			\frac{dc_B}{dt} = -k_1c_Ac_B - 2k_2c_B^2 - k_3c_B - k_4c_Bc_C + \frac{F}{V}(c_B^{in} - c_B) \\
+			\frac{dc_C}{dt} = k_1c_Ac_B -k_1c_Bc_C - \frac{F}{V}c_C \\
+			\frac{dc_D}{dt} = k_2c_B^2 - \frac{F}{V}c_D \\
+			\frac{dV}{dt} = F
+			\label{eq:modelf}
+		\end{eqnarray}
+	\end{small}
+	\end{block}
+
+\end{frame}
+
+%\begin{frame}
+%	\frametitle{Descrição do Problema}
+%	\begin{table}
+%		\caption{Valores parâmetros e condições iniciais. Coeficientes cínéticos estão em $L.mol^{-1}.min^{-1}$, concentrações das espécies em $ mol.L^{-1}$ e volume em litros}
+%		\centering
+%		\label{tab:initial_params}
+%		\begin{tabular}{|l|l|l|l|}
+%			\hline
+%			\textbf{Parâmetro}  & \textbf{Valor} & \textbf{Condições iniciais} & \textbf{Valor} \\ \hline
+%			\textbf{$k_1$}      & 0.053          & \textbf{$c_A(0)$}     & 0.72           \\ \hline
+%			\textbf{$k_2$}      & 30.128         & \textbf{$c_B(0)$}     & 0.05           \\ \hline
+%			\textbf{$k_3$}      & 0.028          & \textbf{$c_C(0)$}     & 0.08           \\ \hline
+%			\textbf{$k_4$}      & 0.001          & \textbf{$c_D(0)$}     & 0.01           \\ \hline
+%			\textbf{$c_B^{in}$} & 5              & \textbf{$V(0)$}       & 1              \\ \hline
+%		\end{tabular}
+%	\end{table}
+%\end{frame}
+
+\begin{frame}
+	\frametitle{Definição do problema}	
+	\begin{small}
+		\begin{block}{Problema de otimização baseado em modelos}
+			\begin{equation}
+				\begin{alignedat}{2}
+					\underset{u(t)}{\text{maximizar}} & \quad c_C(t_f)V(t_f)  \\
+					\text{sujeito a:} & \text{\quad Modelo (\ref{eq:models}-\ref{eq:modelf})} \\
+					& \quad c_B(t_f) \leq c_B^{max} \\
+					& \quad c_D(t_f) \leq c_D^{max} \\
+					& \quad 0 \leq u(t) \leq F^{max}
+				\end{alignedat}
+				\label{eq:rto_static_study}
+			\end{equation}
+		\end{block}
+	\end{small}
+
+	\begin{small}
+		\begin{block}{Problema de identificação de parâmetros}
+			\begin{equation}
+				\begin{alignedat}{2}
+					\underset{\theta}{\text{minimizar}} & \quad \sum_{i \in {B,C,D}}^{}  \left[ 1 - \frac{c_i(t_f,\theta)}{c_{p,i}(t_f) }  \right] ^2 \\
+					%	& \quad g_i(u, f(u,\theta)) \leq 0, \quad \forall i = 1,\dots,n_g \\
+					& \quad \theta^{min} \leq \theta \leq \theta^{max}
+				\end{alignedat}
+				\label{eq:rto_static_ident}
+			\end{equation}
+		\end{block}
+	\end{small}
+	Modelo aproximado: $k_3 = k_4 = 0$  $\Rightarrow  \theta = [k_1, k_2]$.
+
+\end{frame}	
+
+\begin{frame}
+	\frametitle{Solução ótima da planta}
+	\begin{itemize}
+		\item  $u(t)$ discretizado por três variáveis: $(t_m, F_s, t_s)$
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1.0\linewidth]{ft_ideal.png}
+			\label{fig:ideal_ft}
+		\end{subfigure}\hfill
+		\begin{subfigure}[b]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1.0\linewidth]{ideal_species.png}
+			\label{fig:ideal_species}
+		\end{subfigure}
+		\caption{Perfis de alimentação e concentração ótimos da planta}
+		\label{fig:ideal_curves}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Análise preliminar}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[htb]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1\linewidth]{com_best_ideal_average.png}
+			\label{fig:com_best_ideal_average}
+		\end{subfigure}\hfill
+		\begin{subfigure}[htb]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1\linewidth]{contour_params.png}
+			\label{fig:contour_params}
+		\end{subfigure}
+		\caption{\textbf{Esquerda:} Média de 20 execuções da melhor solução viável do Problema \ref{eq:rto_static_study} por geração. \textbf{Direita:} Curvas de nível do Problema \ref{eq:rto_static_ident} variando os parâmetros $k_1$ e $k_2$}
+		\label{fig:algo_results}
+	\end{figure}
+
+
+\end{frame}
+
+
+
+
+\subsection{Resultados}
+\begin{frame}
+	\frametitle{Sinal de controle e função objetivo}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1\linewidth]{dphi_results.png}
+			\label{fig:dphi_results}
+		\end{subfigure}\hfill
+		\begin{subfigure}[b]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1\linewidth]{du_results.png}
+			\label{fig:du_results}
+		\end{subfigure}
+		\caption{Variação relativa percentual do sinal de controle e função objetivo}
+		\label{fig:results_kpis}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Violação das restrições}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\linewidth]{restrictions_violation.png}
+		\caption{Comparação do número de violações das restrições da planta por instância}
+		\label{fig:restrictions_violation}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Variação dos parâmetros}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1\linewidth]{k1_results.png}
+			\label{fig:k1_results}
+		\end{subfigure}\hfill
+		\begin{subfigure}[b]{0.5\textwidth}
+			\centering
+			\includegraphics[width=1\linewidth]{k2_results.png}
+			\label{fig:k2_results}
+		\end{subfigure}
+		\caption{Variação dos parâmetros $k_1$ e $k_2$}
+		\label{fig:results_params}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Erro do modelo}
+	\begin{figure}
+		\centering
+		\includegraphics[width=3in]{erro_calibration_results.png}
+		\caption{Erro do modelo em relação à planta}
+		\label{fig:erro_calibration_results}
+	\end{figure}
+\end{frame}
+
+
+\section{Conclusão}
+\begin{frame}
+	\frametitle{Conclusão}
+	\begin{itemize}
+		\item Duas variações do algoritmo DE forma implementadas e aplicadas com sucesso a um sistema RTO
+		\item A variação DE/rand/1/bin apresentou menor variabilidade e melhores resultados
+		\item Isso está relacionado com o comportamento de convergência prematura da variação DE/mean/1/bin descrito na literatura
+		\item Ficou evidente o quanto a escolha do algoritmo pode afetar o desempenho do sistema RTO
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Próximos passos}
+	\begin{itemize}
+		\item Inclusão de outros algoritmos evolutivos na comparação (PSO, GA) e outras variações do DE
+		\item Inclusão de algoritmos exatos na comparação
+		\item Realização do experimento considerando abordagens RTO estado da arte
+	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+%\begin{frame}
+%\frametitle{Theorem}
+%\begin{theorem}[Mass--energy equivalence]
+%$E = mc^2$
+%\end{theorem}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
+%\frametitle{Verbatim}
+%\begin{example}[Theorem Slide Code]
+%\begin{verbatim}
+%\begin{frame}
+%\frametitle{Theorem}
+%\begin{theorem}[Mass--energy equivalence]
+%$E = mc^2$
+%\end{theorem}
+%\end{frame}\end{verbatim}
+%\end{example}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Figure}
+%Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
+%%\begin{figure}
+%%\includegraphics[width=0.8\linewidth]{test}
+%%\end{figure}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
+%\frametitle{Citation}
+%An example of the \verb|\cite| command to cite within the presentation:\\~
+%
+%This statement requires citation \cite{p1}.
+%\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Referências}
+\footnotesize{
+\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
+
+\bibitem[Lampinen, 2002]{lampinen2002} J. Lampinen (2012)
+\newblock A constraint handling approach for the differential evolution algorithm
+\newblock \emph{Proceedings of the 2002 Congress on Evolutionary
+	Computation} CEC’02 (Cat. No. 02TH8600), vol. 2, pp. 1468–1473,
+	IEEE, 2002.
+
+\bibitem[Chachuat, 2009]{chachuat2009} A. Marchetti, B. Chachuat, and D. Bonvin (2009)
+\newblock Modifier-adaptation methodology for real-time optimization
+\newblock \emph{Industrial \& engineering chemistry
+	research} vol. 48, no. 13, pp. 6022–6033, 2009
+
+\bibitem[Quelhas, 2013]{quelhas2013} Quelhas, André D., Normando José Castro de Jesus, and José Carlos Pinto (2013) \newblock Common vulnerabilities of RTO implementations in real chemical processes.
+\newblock \emph{The Canadian Journal of Chemical Engineering } 91.4 (2013): 652-668.
+
+\bibitem[Gaspar, 2002]{gaspar2002} Gaspar-Cunha, A. and Takahashi, R. and Antunes, C.H. (2002)
+\newblock Manual de computação evolutiva e metaheurística
+\newblock \emph{Imprensa da Universidade de Coimbra / Coimbra University Press}
+
+
+\end{thebibliography}
+}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{Obrigado!}}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\end{document} 

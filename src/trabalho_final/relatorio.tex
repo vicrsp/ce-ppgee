@@ -1,0 +1,603 @@
+
+%% bare_conf.tex 
+%% V1.2
+%% 2002/11/18
+%% by Michael Shell
+%% mshell@ece.gatech.edu
+%% 
+%% NOTE: This text file uses MS Windows line feed conventions. When (human)
+%% reading this file on other platforms, you may have to use a text
+%% editor that can handle lines terminated by the MS Windows line feed
+%% characters (0x0D 0x0A).
+%% 
+%% This is a skeleton file demonstrating the use of IEEEtran.cls 
+%% (requires IEEEtran.cls version 1.6b or later) with an IEEE conference paper.
+%% 
+%% Support sites:
+%% http://www.ieee.org
+%% and/or
+%% http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/ 
+%%
+%% This code is offered as-is - no warranty - user assumes all risk.
+%% Free to use, distribute and modify.
+
+% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
+% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
+% *** with production work. IEEE's font choices can trigger bugs that do  ***
+% *** not appear when using other class files.                            ***
+% Testflow can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran/testflow
+
+
+% Note that the a4paper option is mainly intended so that authors in
+% countries using A4 can easily print to A4 and see how their papers will
+% look in print. Authors are encouraged to use U.S. letter paper when 
+% submitting to IEEE. Use the testflow package mentioned above to verify
+% correct handling of both paper sizes by the author's LaTeX system.
+%
+% Also note that the "draftcls" or "draftclsnofoot", not "draft", option
+% should be used if it is desired that the figures are to be displayed in
+% draft mode.
+%
+% This paper can be formatted using the peerreviewca
+% (instead of conference) mode.
+\documentclass[conference]{IEEEtran}
+% If the IEEEtran.cls has not been installed into the LaTeX system files, 
+% manually specify the path to it:
+% \documentclass[conference]{../sty/IEEEtran} 
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage[version=4]{mhchem}
+
+
+
+% some very useful LaTeX packages include:
+
+%\usepackage{cite}      % Written by Donald Arseneau
+                        % V1.6 and later of IEEEtran pre-defines the format
+                        % of the cite.sty package \cite{} output to follow
+                        % that of IEEE. Loading the cite package will
+                        % result in citation numbers being automatically
+                        % sorted and properly "ranged". i.e.,
+                        % [1], [9], [2], [7], [5], [6]
+                        % (without using cite.sty)
+                        % will become:
+                        % [1], [2], [5]--[7], [9] (using cite.sty)
+                        % cite.sty's \cite will automatically add leading
+                        % space, if needed. Use cite.sty's noadjust option
+                        % (cite.sty V3.8 and later) if you want to turn this
+                        % off. cite.sty is already installed on most LaTeX
+                        % systems. The latest version can be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/contrib/supported/cite/
+
+%\usepackage{graphicx}  % Written by David Carlisle and Sebastian Rahtz
+                        % Required if you want graphics, photos, etc.
+                        % graphicx.sty is already installed on most LaTeX
+                        % systems. The latest version and documentation can
+                        % be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/required/graphics/
+                        % Another good source of documentation is "Using
+                        % Imported Graphics in LaTeX2e" by Keith Reckdahl
+                        % which can be found as esplatex.ps and epslatex.pdf
+                        % at: http://www.ctan.org/tex-archive/info/
+% NOTE: for dual use with latex and pdflatex, instead load graphicx like:
+%\ifx\pdfoutput\undefined
+%\usepackage{graphicx}
+%\else
+\usepackage[pdftex]{graphicx}
+%\fi
+
+% However, be warned that pdflatex will require graphics to be in PDF
+% (not EPS) format and will preclude the use of PostScript based LaTeX
+% packages such as psfrag.sty and pstricks.sty. IEEE conferences typically
+% allow PDF graphics (and hence pdfLaTeX). However, IEEE journals do not
+% (yet) allow image formats other than EPS or TIFF. Therefore, authors of
+% journal papers should use traditional LaTeX with EPS graphics.
+%
+% The path(s) to the graphics files can also be declared: e.g.,
+% \graphicspath{{../eps/}{../ps/}}
+% if the graphics files are not located in the same directory as the
+% .tex file. This can be done in each branch of the conditional above
+% (after graphicx is loaded) to handle the EPS and PDF cases separately.
+% In this way, full path information will not have to be specified in
+% each \includegraphics command.
+%
+% Note that, when switching from latex to pdflatex and vice-versa, the new
+% compiler will have to be run twice to clear some warnings.
+
+
+%\usepackage{psfrag}    % Written by Craig Barratt, Michael C. Grant,
+                        % and David Carlisle
+                        % This package allows you to substitute LaTeX
+                        % commands for text in imported EPS graphic files.
+                        % In this way, LaTeX symbols can be placed into
+                        % graphics that have been generated by other
+                        % applications. You must use latex->dvips->ps2pdf
+                        % workflow (not direct pdf output from pdflatex) if
+                        % you wish to use this capability because it works
+                        % via some PostScript tricks. Alternatively, the
+                        % graphics could be processed as separate files via
+                        % psfrag and dvips, then converted to PDF for
+                        % inclusion in the main file which uses pdflatex.
+                        % Docs are in "The PSfrag System" by Michael C. Grant
+                        % and David Carlisle. There is also some information 
+                        % about using psfrag in "Using Imported Graphics in
+                        % LaTeX2e" by Keith Reckdahl which documents the
+                        % graphicx package (see above). The psfrag package
+                        % and documentation can be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/contrib/supported/psfrag/
+
+%\usepackage{subfigure} % Written by Steven Douglas Cochran
+                        % This package makes it easy to put subfigures
+                        % in your figures. i.e., "figure 1a and 1b"
+                        % Docs are in "Using Imported Graphics in LaTeX2e"
+                        % by Keith Reckdahl which also documents the graphicx
+                        % package (see above). subfigure.sty is already
+                        % installed on most LaTeX systems. The latest version
+                        % and documentation can be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/contrib/supported/subfigure/
+
+%\usepackage{url}       % Written by Donald Arseneau
+                        % Provides better support for handling and breaking
+                        % URLs. url.sty is already installed on most LaTeX
+                        % systems. The latest version can be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/contrib/other/misc/
+                        % Read the url.sty source comments for usage information.
+
+%\usepackage{stfloats}  % Written by Sigitas Tolusis
+                        % Gives LaTeX2e the ability to do double column
+                        % floats at the bottom of the page as well as the top.
+                        % (e.g., "\begin{figure*}[!b]" is not normally
+                        % possible in LaTeX2e). This is an invasive package
+                        % which rewrites many portions of the LaTeX2e output
+                        % routines. It may not work with other packages that
+                        % modify the LaTeX2e output routine and/or with other
+                        % versions of LaTeX. The latest version and
+                        % documentation can be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/contrib/supported/sttools/
+                        % Documentation is contained in the stfloats.sty
+                        % comments as well as in the presfull.pdf file.
+                        % Do not use the stfloats baselinefloat ability as
+                        % IEEE does not allow \baselineskip to stretch.
+                        % Authors submitting work to the IEEE should note
+                        % that IEEE rarely uses double column equations and
+                        % that authors should try to avoid such use.
+                        % Do not be tempted to use the cuted.sty or
+                        % midfloat.sty package (by the same author) as IEEE
+                        % does not format its papers in such ways.
+
+%\usepackage{amsmath}   % From the American Mathematical Society
+                        % A popular package that provides many helpful commands
+                        % for dealing with mathematics. Note that the AMSmath
+                        % package sets \interdisplaylinepenalty to 10000 thus
+                        % preventing page breaks from occurring within multiline
+                        % equations. Use:
+%\interdisplaylinepenalty=2500
+                        % after loading amsmath to restore such page breaks
+                        % as IEEEtran.cls normally does. amsmath.sty is already
+                        % installed on most LaTeX systems. The latest version
+                        % and documentation can be obtained at:
+                        % http://www.ctan.org/tex-archive/macros/latex/required/amslatex/math/
+
+
+
+% Other popular packages for formatting tables and equations include:
+
+%\usepackage{array}
+% Frank Mittelbach's and David Carlisle's array.sty which improves the
+% LaTeX2e array and tabular environments to provide better appearances and
+% additional user controls. array.sty is already installed on most systems.
+% The latest version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/required/tools/
+
+% Mark Wooding's extremely powerful MDW tools, especially mdwmath.sty and
+% mdwtab.sty which are used to format equations and tables, respectively.
+% The MDWtools set is already installed on most LaTeX systems. The lastest
+% version and documentation is available at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/supported/mdwtools/
+
+
+% V1.6 of IEEEtran contains the IEEEeqnarray family of commands that can
+% be used to generate multiline equations as well as matrices, tables, etc.
+
+
+% Also of notable interest:
+
+% Scott Pakin's eqparbox package for creating (automatically sized) equal
+% width boxes. Available:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/supported/eqparbox/
+
+
+
+% Notes on hyperref:
+% IEEEtran.cls attempts to be compliant with the hyperref package, written
+% by Heiko Oberdiek and Sebastian Rahtz, which provides hyperlinks within
+% a document as well as an index for PDF files (produced via pdflatex).
+% However, it is a tad difficult to properly interface LaTeX classes and
+% packages with this (necessarily) complex and invasive package. It is
+% recommended that hyperref not be used for work that is to be submitted
+% to the IEEE. Users who wish to use hyperref *must* ensure that their
+% hyperref version is 6.72u or later *and* IEEEtran.cls is version 1.6b 
+% or later. The latest version of hyperref can be obtained at:
+%
+% http://www.ctan.org/tex-archive/macros/latex/contrib/supported/hyperref/
+%
+% Also, be aware that cite.sty (as of version 3.9, 11/2001) and hyperref.sty
+% (as of version 6.72t, 2002/07/25) do not work optimally together.
+% To mediate the differences between these two packages, IEEEtran.cls, as
+% of v1.6b, predefines a command that fools hyperref into thinking that
+% the natbib package is being used - causing it not to modify the existing
+% citation commands, and allowing cite.sty to operate as normal. However,
+% as a result, citation numbers will not be hyperlinked. Another side effect
+% of this approach is that the natbib.sty package will not properly load
+% under IEEEtran.cls. However, current versions of natbib are not capable
+% of compressing and sorting citation numbers in IEEE's style - so this
+% should not be an issue. If, for some strange reason, the user wants to
+% load natbib.sty under IEEEtran.cls, the following code must be placed
+% before natbib.sty can be loaded:
+%
+% \makeatletter
+% \let\NAT@parse\undefined
+% \makeatother
+%
+% Hyperref should be loaded differently depending on whether pdflatex
+% or traditional latex is being used:
+%
+%\ifx\pdfoutput\undefined
+%\usepackage[hypertex]{hyperref}
+%\else
+%\usepackage[pdftex,hypertexnames=false]{hyperref}
+%\fi
+%
+% Pdflatex produces superior hyperref results and is the recommended
+% compiler for such use.
+
+
+
+% *** Do not adjust lengths that control margins, column widths, etc. ***
+% *** Do not use packages that alter fonts (such as pslatex).         ***
+% There should be no need to do such things with IEEEtran.cls V1.6 and later.
+
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor IEEEtran}
+
+
+\begin{document}
+
+% paper title
+\title{Estudo do algoritmo Differential Evolution aplicado a sistemas de otimização em tempo-real}
+
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+\author{\authorblockN{Victor São Paulo Ruela}
+\authorblockA{Programa de Pós-Graduação em Engenharia Elétrica\\
+Universidade Federal de Minas Gerais\\
+Belo Horizonte, Brasil\\
+Email: victorspruela@gmail.com}}
+
+
+
+% avoiding spaces at the end of the author lines is not a problem with
+% conference papers because we don't use \thanks or \IEEEmembership
+
+% use only for invited papers
+%\specialpapernotice{(Invited Paper)}
+
+% make the title area
+\maketitle
+
+\begin{abstract}
+Este trabalho apresenta um estudo da aplicação de algoritmos evolutivos para a solução de sistemas de otimização em tempo-real (RTO) com adaptação de parâmetros do modelo. Um experimento é proposto para comparar o desempenho duas variações do algoritmo Differential Evolution considerando indicadores de variabilidade presentes na literatura, de forma a obter um maior entendimento de como a escolha de um algoritmo inadequado pode afetar o desempenho do sistema, bem como o nível de variabilidade introduzido pelo uso de algoritmos estocásticos. Um estudo de caso com um reator de semi-batelada é realizado para ilustrar o comportamento do sistema RTO nas condições avaliadas.
+\end{abstract}
+
+% no keywords
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+%
+% for peerreview papers, inserts a page break and creates the second title.
+% Will be ignored for other modes.
+
+
+
+\section{Introdução}
+Uma das principais abordagens para otimização de processos quando medições estão disponíveis são os sistemas de otimização em tempo-real (RTO) \cite{darby2011rto}. Seu principal objetivo é realizar de forma automática o cálculo dos sinais de referência ótimos de um determinado processo baseado em modelos matemáticos, realizando periodicamente ajustes baseados em dados medidos para lidar com as incertezas do modelo. 
+Em situações práticas, raramente é possível obter um modelo preciso do processo pois dados são geralmente ruidosos e os sinais não carregam informações suficientes para sua correta identificação, tornando-a uma tarefa bastante complexa e muitas vezes inacessível \cite{chachuat2009adaptation}. 
+
+A otimização baseada em modelos imprecisos pode resultar em operações sub-ótimas e até infactíveis, de forma que além de realizar adaptações periódicas aos parâmetros do sistema, outra etapa importante é a escolha de um algoritmo de otimização adequado. De acordo com \cite{quelhas2013common}, esta é uma tarefa pouco discutida na literatura mas que se não for feita de forma inteligente pode comprometer bastante o desempenho do sistema se o algoritmo escolhido não for capaz de obter boas soluções. 
+
+Na maioria das aplicações práticas reportadas, são utilizados algoritmos exatos para esta otimização, particulamente programação quadrática sequencial (SQP) \cite{quelhas2013common}. Como em geral os modelos de processo são não-lineares e restritos, existe uma grande tendência de que eles fiquem presos em mínimos locais, o que torna o uso de métodos estocásticos uma alternativa viável para aumentar a robustez da otimização \cite{quelhas2013common}. Embora uma aumento do esforço computacional seja esperado, a possibilidade de convergência global com o uso destas técnicas é muito atrativa. 
+
+Neste trabalho será feito o estudo da aplicação de métodos evolutivos em sistemas RTO. Para isso é porposto o uso do algoritmo Differential Evolution \cite{pant2020differential} com a abordagem por adaptação de parâmetros do modelo. Nesta técnica as medições do processo são usadas para refinar os parâmetros do modelo, cuja versão atualizada é subsequentemente considerada para a otimização. Os resultados serão ilustrados por meio de um estudo de caso de um reator que opera em semi-batelada da literatura \cite{chachuat2009adaptation}.
+
+\section{Definição do problema}
+O método por adaptação de parâmetros do modelo em geral possui como objetivo minimizar ou maximizar um indicador de desempenho, enquanto uma série de restrições devem ser satisfeitas. O problema de otimização para a planta pode ser definido como:
+\begin{equation}
+	\begin{alignedat}{2}
+		\underset{u}{\text{minimizar}} & \quad \phi(u, y_p(u))  \\
+		\text{sujeito a:} & \quad g_i(u, y_p(u)) \leq 0, \quad \forall i = 1,\dots,n_g\\
+		& \quad u^{min} \leq u \leq u^{max}
+	\end{alignedat}
+	\label{eq:rto_static}
+\end{equation}
+onde $\phi \in \mathbf{R}$ é um indicador de desempenho, $g_i \in \mathbf{R}^{n_g}$ as restrições de inequalidade, $y_p \in \mathbf{R}^{n_y}$ as saídas medidas do processo e $u \in \mathbf{R}^{n_u}$ representa o conjunto de sinais de controle, os quais possuem valores dentro do intervalo $[u^{min},u^{max}]$.
+
+Entretanto, na prática somente um modelo aproximado do processo está disponível, o que define o problema de otimização baseado em modelos:
+\begin{equation}
+	\begin{alignedat}{2}
+		\underset{u}{\text{minimizar}} & \quad \phi(u, f(u,\theta))  \\
+		\text{sujeito a:} & \quad g_i(u, f(u,\theta)) \leq 0, \quad \forall i = 1,\dots,n_g \\
+		& \quad u^{min} \leq u \leq u^{max}
+	\end{alignedat}
+	\label{eq:rto_static_uncertain}
+\end{equation}
+onde $\theta$ são os parâmetros ajustáveis do modelo aproximado $f$.
+
+Em cada iteração, o método utiliza como estratégia de adaptação o ajuste de um sub-conjunto de parâmetros do modelo a partir de dados coletados do processo, definindo um problema de identificação de parâmetros. Uma estratégia comum para sua solução consiste em minimizar a soma dos erros quadráticos percentuais entre saídas medidas e previstas \cite{chachuat2009adaptation}:
+\begin{equation}
+	\begin{alignedat}{2}
+		\underset{\theta}{\text{minimizar}} & \quad \sum_{i=1}^{N}  \left[ 1 - \frac{f(u,\theta)_i}{y_{p}(u)_i }  \right] ^2 \\
+		%	& \quad g_i(u, f(u,\theta)) \leq 0, \quad \forall i = 1,\dots,n_g \\
+		& \quad \theta^{min} \leq \theta \leq \theta^{max}
+	\end{alignedat}
+	\label{eq:rto_static_ident}
+\end{equation}
+onde $N$ é o número de amostras disponíveis do processo.
+
+Estes dois problemas de otimização são executados em cada iteração do sistema RTO e é fácil notar que existe uma interação relevante entre eles. Devido à natureza dos modelos empregados, ambos correspondem a problemas não-lineares restritos com variáveis contínuas. Dessa forma, a escolha dos algoritmos de otimização empregados é muito importante pois pode impactar diretamente o desempenho do sistema \cite{quelhas2013common}.
+
+\section{Classificação de sistemas de otimização em tempo-real}
+
+Os elementos que compõe um sistema típico de otimização em tempo-real são exibidos na Figura \ref{fig:rtoOverview}. O primeiro passo consiste na coleta de dados, que serão posteriormente usados na definição de um rigoroso modelo do processo. Em seguida, é formulado um problema de otimização baseado neste modelo, que calcula as entradas ótimas em relação a um objetivo econômico, a partir de diferentes informações de mercado, como preço de insumos, restrições de inventário e qualidade do produto final. Como simplificação, assume-se que exista um sistema de controle capaz de aplicar as referências calculadas pelo otimizador. A partir desta definição inicial, periodicamente o sistema irá coletar novos dados do processo e automaticamente utilizá-los na estratégia de adaptação escolhida. É importante resaltar que os novos dados coletados precisam passar por um rigoroso processo de validação, tipicamente na forma de verificação de limites aceitáveis, ou através de técnicas estatísticas de reconciliação e detecção de erros grosseiros \cite{bagajewicz2000brief}. 
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=3in]{rto_blocks.png}
+	\caption{\label{fig:rtoOverview}Elementos de um sistema de otimização em tempo-real}
+\end{figure}
+
+Na prática, a definição do modelo é uma tarefa bastante complexa, o que resulta na introdução de incertezas que podem causar situações de operação sub-ótima e inviabilidade quando existem restrições \cite{marchetti2009modifier}. O uso de estratégias de adaptação é essencial para lidar com as discrepância modelo-planta e tentar buscar a convergência do sistema, estando disponíveis diversas abordagens na literatura. 
+Sistemas RTO podem ser classificados de acordo com a forma de adaptação realizada a partir das amostras \cite{marchetti2016modifier}:
+\begin{enumerate}
+	\itemsep=0em
+	\item \textbf{Adaptação de parâmetros do modelo}: \label{list:twostep} é a abordagem mais intuitiva, sendo conhecida na literatura como método de duas fases (\textit{two-step}). Em cada iteração,  amostras das saídas do processo são coletadas, processadas e posteriomente utilizadas para refinar o modelo do processo. Em seguida, este novo modelo é usado na otimização dos valores de referência do processo de acordo com a função objetivo e restrições estabelecidas \cite{naysmith1995review, marlin1997real, san2002multiple, forbes1996design}.
+	\item \textbf{Adaptação de modificadores}: ao contrário do método \textit{two-step}, nesta abordagem o modelo do processo é fixo. Em cada iteração, a adaptação é realizada diretamente na função objetivo e restrições do problema de otimização. Isso é feito através da adição de termos modificantes que representam a diferença entre o ponto de operação ótimo da planta e do modelo, calculados a partir das medições. Uma particularidade deste método consiste na necessidade de se medir gradientes da planta em relação às entradas, ao invés de somente as suas saídas, o que na prática pode ser desafiador. É conhecido na literatura como \textit{Modifier Adaptation} (MA) \cite{chachuat2009adaptation, marchetti2010dual}. \label{list:ma}
+	\item \textbf{Adaptação direta de entradas}: ao contrário das anteriores, esta abordagem não utiliza técnicas de otimização numérica. Ela transforma o problema de otimização anterior num problema de controle em malha-fechada capaz de calcular as entradas do sistema \cite{franccois2005use}. Seu objetivo é encontrar funções das variáveis medidas que quando mantidas constantes pelo ajuste das entradas do processo, garantem levar a planta ao ótimo.  Os métodos mais comuns dessa abordagem são o \textit{Extreme Seeking Control} \cite{krstic2000stability}, \textit{Neighboring-Extremal Control} \cite{gros2009optimizing} e \textit{Self-Optimizing Control} \cite{skogestad2000self} \label{list:dia}
+\end{enumerate}
+
+De acordo com \cite{marchetti2020modifier}, aplicações de RTO são majoritariamente estudadas utilizando processos químicos. Neste contexto, uma iteração do RTO é geralmente feita após a detecção de que a planta esteja em estado estacionário. Isso é valido para processos que operam de forma contínua, porém para processos descontínuos cada iteração é realizada ao final de uma batelada, tendo como objetivo determinar perfis ótimos para as entradas ao invés de somente valores de referência. A otimização desses perfis é um problema de otimização em tempo-real dinâmica, o qual geralmente é reformulado como um problema estático \cite{costello2011modifier} através da discretização destes perfis.
+
+\section{O algoritmo Differential Evolution}
+O algoritmo Differential Evolution (DE) é uma meta-heurística baseada em populações bastante presente na literatura, principalmente devido à sua simplcidade e seu excelente desempenho quando aplicado em problemas de diversos domínios \cite{pant2020differential}. Sua principal diferença em relação às demais heurísticas está no seu operador de mutação diferencial. Dado um indivíduo $i$ de uma população com $P$ soluções candidatas, um vetor mutante $v_i$ é criado adicionando uma perturbação proporcional à diferença de dois outros membros aleatórios desta população:
+\begin{equation}
+ v_i = x_a + F\left( x_b - x_c \right), \forall :\ i \in [1,\dots,P]
+\end{equation}
+onde o fator de escala $F > 0$ é um número real que controla a taxa com que a população evolui, $x_a$, $x_b$ e $x_c$ são indivíduos selecionados aleatoriamente da população em sua versão clássica \cite{eiben2007introduction}. 
+
+Em seguida os indivíduos da populção original são recombinados com os da população mutante, produzindo uma população de descendentes $u$. Na sua versão clássica, emprega-se a recombinação discreta com probabilidade $C_r \in [0,1]$. Uma particularidade introduzida neste operador consiste que para um índice aleatório, o alelo de um descedente sempre será do indivíduo mutante. Isso garante com que pelo menos um dos alelos de uma solução descendente seja herdado de uma mutação \cite{eiben2007introduction}.
+
+O último passo consite na seleção dos indivíduos sobreviventes. Para cada descendente $u_i$, seu valor de função objetivo $f(u_i)$ é calculado e comparado com o valor da respectiva solução corrente $f(x_i)$. Na versão clássica, se $f(u_i) \leq f(x_i)$, então o indivíduo $u_i$ substitui o $x_i$ na população. Caso contrário, $u_i$ é descartada e $x_i$ sobrevive. Este processo se repete até que um critério de parada definido pelo usuário seja atingido.
+
+Diversas variações deste algoritmo estão presentes na literatura \cite{pant2020differential} e em geral são representadas pela notação \textbf{DE/base/d/rec}, onde \textbf{base} se refere a como o vetor de base $x_a$ é escolhido, \textbf{d} o número de vetores de diferenças $(x_b-x_c)$ e \textbf{rec} identifica o operador de recombinação utilizado. Sua versão clássica é representada por DE/rand/1/bin, por exemplo.
+
+
+\section{Metodologia}
+
+\subsection{Implementação do algoritmo DE}
+Serão implementadas as variações DE/rand/1/bin e DE/mean/1/bin do algoritmo DE. Ou seja, a seleção do vetor de base será feita de forma aleatória ou utilizando a média da população, considerando somente 1 vetor de diferenças e recombinação binomial. O fator de escala será amostrado de uma distribuição uniforme no intervalo $[0.5,1.0]$ e alterado a cada geração, conforme sugerido por \cite{gaspar2012manual}. A população inicial será amostrada uniformemente no espaço de busca e uma probabilidade de recombinação $C_r = 0.5$ será considerada.
+
+Como os dois problemas de otimização são restritos, é necessário implementar o tratamento de restrições pelo algoritmo. Para isso, será implementada a técnica proposta em \cite{lampinen2002constraint}. Se alguma variável de decisão estiver fora dos limites estabelecidos, a mesma é alterada para um valor aleatório dentro dos limites válivdos. Além disso, para as demais restrições, durante a etapa de seleção dos sobreviventes, um indivíduo só poderá ser escolhido se satifazer pelo menos uma das regras a seguir:
+\begin{enumerate}
+	\item É factivel e possui um objetivo menor ou igual que o indivíduo atual
+	\item É factível enquanto que o invíduo atual é infactível
+	\item É infactível, porém viola menos as restrições em relação ao indivíduo atual
+\end{enumerate}
+
+Outra funcionalidade importante que também foi incluída na implementação foi a normalização das variáveis de decisão para a faixa de 0 a 100 internamente pelo algoritmo. Como no problema em estudo as variáveis podem possuir magnitudes bastante distintas, essa prática irá evitar possíveis problemas numéricos. Além disso, para não permitir soluções degeneradas na variação DE/rand/1/bin, os índices selecionados serão sempre mutualmente distintos, o que será implementado seguindo a técnica proposta em \cite{gaspar2012manual}.
+
+
+\subsection{Desenho do Experimento}
+O experimento proposto irá comparar o desempenho as versões DE/rand/1/bin e DE/mean/1/bin do algoritmo DE descritos na seção anterior sobre um sistema RTO operando em malha fechada. O tamanho da população, número máximo de gerações e probabilidade de mutação serão mantidos fixos em 20, 100 e 0.5, respectivamente. Serão realizadas 30 execuções considerando ciclos RTO de 10 iterações para cada uma das versões consideradas, resultando num total de 600 execuções dos problemas \ref{eq:rto_static_uncertain} e \ref{eq:rto_static_ident}.
+
+Serão utilizados como critérios de comparação os seguintes indicadores propostos por \cite{quelhas2013common}, os quais medem a variação relativa do sinal de controle $u$ e objetivo $\phi$ de cada iteração do RTO em relação aos valores ótimos da planta $u^{opt}$ e $\phi^{opt}$, conforme definido pelas Equações \ref{eq:du_perc} e \ref{eq:dphi_perc}. Além disso, outro critério de comparação será o número de vezes que as restrições do processo forem violadas. No caso dos parâmetros ajustados, como não existem valores de referência, a análise será feita em sobre a variabilidade da distribuição obtida de cada parâmetro.
+
+\begin{equation}
+	\label{eq:du_perc}
+ \Delta u\% =  \left\|100 \frac{u - u^{opt}}{u^{opt}} \right\| \\
+% \Delta u \% =  \left\|100 \frac{u(k) - u(k-1)}{u(k-1)} \right\| \\
+% \Delta \phi_k \% =  \frac{\phi(k) - \phi(k-1)}{\phi(k-1)} \\
+\end{equation}
+\begin{equation}
+	\label{eq:dphi_perc}
+	\Delta \phi \% =  100 \frac{\phi - \phi^{opt}}{\phi^{opt}} 
+\end{equation}
+
+
+\section{Estudo de Caso}
+
+\subsection{Descrição do problema}
+
+Nesta seção, é feito um estudo de caso para a metodologia proposta considerando o reator de acetoacetilação de pirrol descrito em \cite{ruppen1998implementation}, o qual opera em semi-batelada e possui as seguintes reações:
+
+\ce{A + B ->[k_1] C} \quad
+\ce{2B ->[k_2] D} \quad
+\ce{B ->[k_3] E} \quad
+\ce{C + B ->[k_4] F} \quad
+
+Um modelo baseado deste processo pode ser descrito pelo seguinte sistema de equações diferenciais de primeira ordem:
+
+\begin{small}
+\begin{eqnarray}
+	\label{eq:models}	\frac{dc_A}{dt} = -k_1c_Ac_B - \frac{F}{V}c_A \\
+	\frac{dc_B}{dt} = -k_1c_Ac_B - 2k_2c_B^2 - k_3c_B - k_4c_Bc_C + \frac{F}{V}(c_B^{in} - c_B) \\
+	\frac{dc_C}{dt} = k_1c_Ac_B -k_1c_Bc_C - \frac{F}{V}c_C \\
+	\frac{dc_D}{dt} = k_2c_B^2 - \frac{F}{V}c_D \\
+	\frac{dV}{dt} = F
+	\label{eq:modelf}
+\end{eqnarray}
+\end{small}
+onde $c_A$, $c_B$, $c_C$ e $c_D$ são as concentrações de cada espécie, $V$ é o volume do reator e $F$ é a vazão de entrada da espécie B, com concentração $c_B^{in}$, e $k_1$, $k_2$, $k_3$ e $k_4$ são os coeficientes cinéticos de cada reação. Os valores de cada parâmetro e condições iniciais estão apresentados na Tabela \ref{tab:initial_params}. 
+
+\begin{table}[h!]
+	\caption{Valores parâmetros e condições iniciais. Coeficientes cínéticos estão em $L.mol^{-1}.min^{-1}$, concentrações das espécies em $ mol.L^{-1}$ e volume em litros}
+	\centering
+	\label{tab:initial_params}
+	\begin{tabular}{|l|l|l|l|}
+		\hline
+		\textbf{Parâmetro}  & \textbf{Valor} & \textbf{Condições iniciais} & \textbf{Valor} \\ \hline
+		\textbf{$k_1$}      & 0.053          & \textbf{$c_A(0)$}     & 0.72           \\ \hline
+		\textbf{$k_2$}      & 30.128         & \textbf{$c_B(0)$}     & 0.05           \\ \hline
+		\textbf{$k_3$}      & 0.028          & \textbf{$c_C(0)$}     & 0.08           \\ \hline
+		\textbf{$k_4$}      & 0.001          & \textbf{$c_D(0)$}     & 0.01           \\ \hline
+		\textbf{$c_B^{in}$} & 5              & \textbf{$V(0)$}       & 1              \\ \hline
+	\end{tabular}
+\end{table}
+
+Ao longo deste estudo de caso, este mecanismo completo de reação será considerado como a planta, enquanto que um modelo aproximado será construído considerando somente as duas primeiras reações, de forma que as demais sejam desconhecidas ($k_3 = k_4 = 0$) e uma discrepância estrutural seja introduzida.
+
+O objetivo consiste em determinar o perfil de alimentação da espécie B que maximiza o número de mols de C no final do processo, mantendo as concentrações finais de B e C abaixo dos limites especificados:
+
+\begin{equation}
+	\begin{alignedat}{2}
+		\underset{u(t)}{\text{maximizar}} & \quad c_C(t_f)V(t_f)  \\
+		\text{sujeito a:} & \text{\quad Modelo (\ref{eq:models}-\ref{eq:modelf})} \\
+		& \quad c_B(t_f) \leq c_B^{max} \\
+		& \quad c_D(t_f) \leq c_D^{max} \\
+		& \quad 0 \leq u(t) \leq F^{max}
+	\end{alignedat}
+	\label{eq:rto_static_study}
+\end{equation}
+com $t_f=250 \: min$, $F^{max}=0.002 \: L.min^{-1}$, $c_B^{max} = 0.025 \: mol.L^{-1}$ e $c_D^{max} = 0.15 \: mol.L^{-1}$. Conforme descrito em \cite{chachuat2009adaptation}, originalmente este é um problema de otimização dinâmica, o qual é parametrizado para permitir sua solução como um problema estático. O perfil de alimentação $u(t)$ será divido em três partes e descrito por meio de três variáveis $(t_m, F_s, t_s)$, onde $t_m$ é o instante de troca entre a primeira e segunda parte, $F_s$ é a vazão constante ao longo da segunda parte e $t_s$ o tempo de troca entre a segunda e terceira partes. Na primeira e terceira partes as vazões são constantes em $F^{max}$ e $0$, respectivamente. Realizando a solução do Problema \ref{eq:rto_static}, encontra-se como solução ótima $\phi^{opt} \approx 0.5085$ e $u^{opt} \approx \left[ 18.6139, 0.0011, 227.6375 \right]$. O perfil de alimentação ótimo da planta, o qual pode ser visto na Figura \ref{fig:ideal_ft}, e as concentrações das espécies para este perfil podem ser vistos na Figura \ref{fig:ideal_species}. 
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=3in]{ft_ideal.png}
+	\caption{Perfil de alimentação ótimo para a planta.}
+	\label{fig:ideal_ft}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=3in]{ideal_species.png}
+	\caption{Perfis de concentração ótimos da planta}
+	\label{fig:ideal_species}
+\end{figure}
+
+
+Os parâmetros a serem ajustados no modelo aproximado são $\theta = [k_1, k_2]$, os quais são obtidos resolvendo o problema de otimização descrito pela Equação \ref{eq:rto_static_ident} para os intervalos $\theta^{min} = [0.0011, 0.0026]$ e $\theta^{max} = [0.212, 0.5120]$, considerando amostras das espécies B, C e D no final do processo. As amostras são obtidas a partir da execução do modelo da planta considerando o perfil de alimentação $u(t)$ calculado pela solução do problema \ref{eq:rto_static_study} desta mesma iteração. Um ruído gaussiando com média 0 e variância de 5\% é adicionado como forma de se aproximar um pouco mais das situações práticas.
+
+De acordo com \cite{chachuat2009adaptation}, os parâmetros ajustados também devem ser filtrados conforme a Equação \ref{eq:k_update} para evitar correções muito agressivas, onde $k_1^*$ e $k_{2}^*$ são os valores ótimos obtidos na etapa anterior. Um fator $k_{\theta} = 0.5$ será considerado nesse estudo. Após este passo, estes novos parâmetros podem ser utilizados na solução do problema \ref{eq:rto_static_study} na próxima iteração do sistema RTO.
+
+
+\begin{equation}
+\begin{pmatrix}
+	k_{1,atual}\\ k_{2,atual} 
+\end{pmatrix}
+=
+\begin{pmatrix}
+	1 - k_{\theta}
+\end{pmatrix}
+\begin{pmatrix}
+	k_{1,anterior}\\ k_{2,anterior} 
+\end{pmatrix}
++
+k_{\theta}
+\begin{pmatrix}
+	k_1^*\\ k_{2}^* 
+\end{pmatrix}
+\label{eq:k_update}
+\end{equation}
+
+\subsection{Resultados}
+
+Na Figura \ref{fig:dphi_results} é possível ver os resultados de variação relativa percentual da função objetivo, onde nota-se que a instância DE/rand/1/bin possui um desempenho superior em relação a este indicador. É interessante notar que ela apresentou também menor variabilidade e outliers, conforme pode ser visto no gráfico \textit{boxplot}. Vale a pena ressaltar que em ambos os casos os valores são negativos, ou seja, eles ainda estão longe do ótimo da planta, o que é um resultado esperado e uma característica conhecida na literatura da abordagem \textit{Two-Step} \cite{srinivasan2019110th}.
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{dphi_results.png}
+	\caption{Variação relativa percentual da função objetivo. Esquerda: distribuição dos valores ao longo das iterações do ciclo RTO. Direita: \textit{boxplot} considerando todos os dados de cada instância.}
+	\label{fig:dphi_results}
+\end{figure}
+
+Em relação à variação relativa percentual do sinal de controle, também observa-se uma maior variabilidade da instância DE/mean/1/bin, conforme a Figura \ref{fig:du_results}. Note que em torno da iteração 5 do ciclo RTO, há um crescimento expressivo da diferença para o ótimo da planta. Isso também pode ser visto no gráfico \textit{boxplot}, onde uma observação interessante tambem está no fato de que os outliers da instância DE/rand/1/bin não ultrapassam o limite do quartil superior da outra instância.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{du_results.png}
+	\caption{Variação relativa percentual do sinal de controle. Esquerda: distribuição dos valores ao longo das iterações do ciclo RTO. Direita: \textit{boxplot} considerando todos os dados de cada instância.}
+	\label{fig:du_results}
+\end{figure}
+
+Outro comportamente interessante está no fato de que ao final do ciclo RTO os dois algoritmos apresentam diferenças similares, sugerindo que o algoritmo determinou caminhos diferentes mas que convergem para um ponto de operação comum. Do ponto de vista prático, este é um resultado muito importante, pois os caminhos podem resultar em resultados econômicos completamente diferentes dependendo somente da escolha indevida do algoritmo de otimização, conforme visto na Figura \ref{fig:dphi_results}. 
+
+%A realização de um novo experimento considerando um ciclo de tamanho maior poderia ser utilizado para validar esta hipótese.
+
+
+Um motivo para esta diferença pode estar relacionado ao orçamento computacional disponível, dado que uma hipótese válida é de que a instância DE/mean/1/bin necessite de mais gerações para atingir soluções melhores. Executando 20 vezes as duas instâncias para a solução do Problema \ref{eq:rto_static}, a média do melhor objetivo encontrado por geração pode ser vista na Figura \ref{fig:com_best_ideal_average}. Observe que a instância DE/mean/1/bin em média converge para uma solução pior, sugerindo que um maior esforço computacional poderia ser requerido para melhorar seu desempenho, assim como um melhor ajuste dos demais hiper-parâmetros. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{restrictions_violation.png}
+	\caption{Comparação do número de violações das restrições da planta por instância. O valor é definido considerando os perfis de alimentação estimados pelo modelo aproximado em cada iteração aplicados na planta.}
+	\label{fig:restrictions_violation}
+\end{figure}
+
+
+Considerando as restrições do processo estabelecidas no Problema \ref{eq:rto_static_study}, a quantidade de vezes em que cada instância violou as restrições podem ser vistas na Figura \ref{fig:restrictions_violation}. Ambos os algoritmos não violaram com frequências as restrições e apresentaram resultados muito similiares, de forma que nesse aspecto eles apresentaram um desempenho muito bom.
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{com_best_ideal_average.png}
+	\caption{Média da melhor solução viável por geração para cada instância}
+	\label{fig:com_best_ideal_average}
+\end{figure}
+
+
+Nas Figuras \ref{fig:k1_results} e \ref{fig:k2_results} é exibida a distribuição dos valores ajustados para os parâmetros $k_1$ e $k_2$, respectivamente. Um comportamente interessante é observado, no qual há uma relação inversa entre os parâmetros econtrados por cada instância, o que pode ser um reflexo da diferença dos caminhos utilizados pelo algoritmo, conforme visto anteriormente. Isso mostra o quanto a interação entra as duas etapas de otimização na abordagem \textit{Two-Step} pode afetar o seu desempenho.
+Na Figura \ref{fig:erro_calibration_results} podem ser vistos os valores de erro do modelo aproximado em relação à planta (Equação \ref{eq:rto_static_ident}), a qual mostra uma enorme variação ao longo das iterações e um maior número de outliers para a instância DE/mean/1/bin. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{k1_results.png}
+	\caption{Ajuste do parâmetro $k_1$. Esquerda: distribuição dos valores ao longo das iterações do ciclo RTO. Direita: \textit{boxplot} considerando todos os dados de cada instância.}
+	\label{fig:k1_results}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{k2_results.png}
+	\caption{Ajuste do parâmetro $k_2$. Esquerda: distribuição dos valores ao longo das iterações do ciclo RTO. Direita: \textit{boxplot} considerando todos os dados de cada instância.}
+	\label{fig:k2_results}
+\end{figure}
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=3in]{erro_calibration_results.png}
+	\caption{Erro do modelo em relação à planta. Esquerda: distribuição dos valores ao longo das iterações do ciclo RTO. Direita: \textit{boxplot} considerando todos os dados de cada instância.}
+	\label{fig:erro_calibration_results}
+\end{figure}
+
+
+\section{Conclusão}
+Neste trabalho foi feito um estudo da aplicação do algoritmo Differential Evolution para a solução dos problemas de otimização envolvidos em sistemas RTO \textit{Two-Step}. Considerando as variações DE/mean/1/bin e DE/rand/1/bin, através da realização experimento proposto foi possível observar o quanto uma escolha ruim do algoritmo de otimização pode afetar o desempenho do sistema.
+
+Devido à sua característica de convergência prematura, a variação DE/mean/1/bin apresentou um desempenho muito inferior, obtendo resultados com muito mais variabilidade para os sinais de controle calculados, além de um objetivo cerca de 2\%, em média, abaixo que a variação DE/rand/1/bin. Além disso, também foi observada uma variabilidade muito maior nos parâmetros ajustados do modelo, e uma maior presença de valores outliers. É importante ressaltar que ambos os algoritmos respeitaram de forma satisfatória as restrições do processo.
+
+Portanto, os objetivos propostos para o trabalho foram atingidos com sucesso. Como próximo passo, é sugerido a avaliação de outras variações do DE presentes na literatura, bem como a de outras meta-heurísticas evolutivas, como o PSO e GA. Para enriquecer mais a análise, a inclusão de algoritmos exatos também é bastante interessante, bem como aplicar o mesmo estudo sobre abordagens estado da arte da literatura. Todos os códigos utilizados no desenvolvimento deste trabalho estão disponíveis online no repositório https://github.com/vicrsp/rto.
+
+
+\bibliography{relatorio}
+\bibliographystyle{ieeetr}
+
+% that's all folks
+\end{document}
+
+
