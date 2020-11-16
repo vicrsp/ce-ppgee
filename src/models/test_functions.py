@@ -32,4 +32,4 @@ class Quadratic:
 
     def f(self, x, index):
         y = x[0]**2 + x[1]**2
-        return np.exp(-y)
+        return y
