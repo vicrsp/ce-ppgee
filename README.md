@@ -18,3 +18,7 @@ https://github.com/vicrsp/ce-ppgee/blob/master/src/notebooks/tp2_pso.ipynb
 Neste trabalho foi feita a implementação do algoritmo PSO e aplicou-se o algoritmo a uma função de benchmark unimodal e multimodal disponível na literatura. O efeito dos hiperparâmetros tamanho da população, coeficientes de aceleração, constrição e peso de inércia foram avaliados sobre estas duas funções.
 
 ## Trabalho Final - Avaliação de Sistemas RTO com algoritmo Differential Evolution
+### Relatório
+https://github.com/vicrsp/ce-ppgee/blob/master/src/trabalho_final/relatorio.pdf
+
+Este trabalho apresenta um estudo da aplicação de algoritmos evolutivos para a solução de sistemas de otimização em tempo-real (RTO) com adaptação de parâmetros do modelo. Um experimento é proposto para comparar o desempenho duas variações do algoritmo Differential Evolution considerando indicadores de variabilidade presentes na literatura, de forma a obter um maior entendimento de como a escolha de um algoritmo inadequado pode afetar o desempenho do sistema, bem como o nível de variabilidade introduzido pelo uso de algoritmos estocásticos. Um estudo de caso com um reator de semi-batelada é realizado para ilustrar o comportamento do sistema RTO nas condições avaliadas.
